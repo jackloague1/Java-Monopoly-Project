@@ -1,6 +1,8 @@
-package Spaces;
-// Represents a Tax space
+package spaces;
 
+/**
+ * Inherits from the Space parent class and represents a tax space.
+ */
 public class Tax extends Space 
 {
 

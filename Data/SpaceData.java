@@ -1,15 +1,21 @@
-package Data;
+package data;
 
 import java.util.ArrayList;
 
-import Spaces.Card;
-import Spaces.NormalProperty;
-import Spaces.RailroadProperty;
-import Spaces.Space;
-import Spaces.Tax;
-import Spaces.UtilityProperty;
+import spaces.Card;
+import spaces.FreeParking;
+import spaces.Go;
+import spaces.GoToJail;
+import spaces.Jail;
+import spaces.NormalProperty;
+import spaces.RailroadProperty;
+import spaces.Space;
+import spaces.Tax;
+import spaces.UtilityProperty;
 
-// Holds all information on all spaces of the board
+/**
+ * Initializes and stores all information for all spaces on the board.
+ */
 public class SpaceData 
 {
     public static final int NUM_OF_SPACES = 40;
@@ -24,6 +30,10 @@ public class SpaceData
     public static final int yCoordinates[] = {661, 661, 661, 661, 661, 661, 661, 661, 661, 661, 661, 594, 542, 490, 438, 386, 334, 282, 230, 178, 111, 111, 111, 111, 111, 111, 111, 111, 111, 111, 111, 178, 230, 282, 334, 386, 438, 490, 542, 594};
 
     public static ArrayList<Space> spaces = new ArrayList<Space>();
+    public static Go go;
+    public static Jail jail;
+    public static FreeParking freeParking;
+    public static GoToJail goToJail;
     public static ArrayList<NormalProperty> normalProperties = new ArrayList<NormalProperty>();
     public static ArrayList<RailroadProperty> railroadProperties = new ArrayList<RailroadProperty>();
     public static ArrayList<UtilityProperty> utilityProperties = new ArrayList<UtilityProperty>();
@@ -39,11 +49,20 @@ public class SpaceData
 
     public SpaceData()
     {
+        createCornerSpaces();
         createNormalProperties();
         createRailroadProperties();
         createUtilityProperties();
         createCardSpaces();
         createTaxSpaces();
+    }
+
+    public static void createCornerSpaces()
+    {
+        go = new Go(661, 661, 0, "Go", 200);
+        jail = new Jail(111, 661, 10, "Just Visiting");
+        freeParking = new FreeParking(111, 111, 20, "Free Parking");
+        goToJail = new GoToJail(661, 111, 30, "Go To Jail");
     }
 
     public static void createNormalProperties()
@@ -239,6 +258,27 @@ public class SpaceData
             }
         }     
         
-        currentSpaceType = "Corner Space";
+        if (currentSpaceNumber == go.spaceNumber)
+        {
+            currentSpaceType = go.type;
+            return;
+        }
+
+        if (currentSpaceNumber == jail.spaceNumber)
+        {
+            currentSpaceType = jail.type;
+            return;
+        }
+
+        if (currentSpaceNumber == freeParking.spaceNumber)
+        {
+            currentSpaceType = freeParking.type;
+            return;
+        }
+        if (currentSpaceNumber == goToJail.spaceNumber)
+        {
+            currentSpaceType = goToJail.type;
+            return;
+        }
     }
 }

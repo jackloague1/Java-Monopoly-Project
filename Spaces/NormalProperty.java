@@ -1,8 +1,10 @@
-package Spaces;
-// Represents a property space
+package spaces;
 
-import Game.Player;
+import game.Player;
 
+/**
+ * Inherits from the Space parent class and represents a propety space.
+ */
 public class NormalProperty extends Space 
 {
     public String group;

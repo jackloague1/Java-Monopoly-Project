@@ -1,5 +1,4 @@
-package Game;
-// Represents the dice blocks
+package game;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -7,6 +6,9 @@ import java.awt.Image;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+/**
+ * Represents the dice in game.
+ */
 public class Dice 
 {
     final int MIN_NUMBER = 1;
@@ -25,18 +27,11 @@ public class Dice
                                         new ImageIcon("images/dice-block-5.png").getImage(),
                                         new ImageIcon("images/dice-block-6.png").getImage()};
 
-    // public static ImageIcon diceImage = new ImageIcon("images/dice-block-1.png");
-
     public static JLabel diceLabel;
 
     public Dice(GamePanel gamePanel)
     {
         this.gamePanel = gamePanel;
-
-        // diceLabel = new JLabel();
-        // diceLabel.setBounds(200, 70, 30, 30);
-        // diceLabel.setIcon(diceImage);
-        // gamePanel.add(diceLabel);
     }
 
     public void getDiceResult()

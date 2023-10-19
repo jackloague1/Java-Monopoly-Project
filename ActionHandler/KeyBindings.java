@@ -1,4 +1,4 @@
-package ActionHandler;
+package actionhandler;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -6,8 +6,9 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.KeyStroke;
 
-import Data.GameStates;
-import Game.GamePanel;
+
+import data.GameStates;
+import game.GamePanel;
 
 public class KeyBindings 
 {

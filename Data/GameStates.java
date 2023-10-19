@@ -1,5 +1,9 @@
-package Data;
+package data;
 
+/**
+ * Represents the various states the game can be in. This will be used to change what is displayed
+ * on screen depending on the state.
+ */
 public class GameStates 
 {
     public static final int TITLE_SCREEN_STATE = 0;

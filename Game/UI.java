@@ -1,4 +1,4 @@
-package Game;
+package game;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -10,16 +10,19 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
-import ActionHandler.KeyHandler;
-import ActionHandler.MouseHandler;
-import Data.GameStates;
 
+import actionhandler.KeyHandler;
+import actionhandler.MouseHandler;
+import data.GameStates;
+
+/**
+ * Represents any element a user or player can interact with, such as buttons.
+ */
 public class UI 
 {
     public GamePanel gamePanel;
     public Dice dice;
     public ArrayList<Player> players;
-    // public Player player;
 
     public JLabel titleText;
     public JLabel titleStartButton;
@@ -31,7 +34,7 @@ public class UI
     public static JLabel rollButton;
     public static JLabel nextTurnButton;
     public static JLabel buyOption;
-    public static JLabel auctionOption;
+    public static JLabel passOption;
 
     public MouseHandler mouseHandler;
     public KeyHandler keyHandler;
@@ -74,7 +77,7 @@ public class UI
         startGameButton = new JLabel();
         createButton(startGameButton, new Font("Times New Roman", Font.PLAIN, 26), "Start", 350, 600, 100, 50);
         
-        boardImage = new ImageIcon("images/Monopoly-Board.png").getImage();
+        boardImage = new ImageIcon("images/Monopoly-Board-Update-2.png").getImage();
         // boardLabel = new JLabel();
         // boardLabel.setBounds(80, 80, 642, 642);
         // boardImage = new ImageIcon("images/Monopoly-Board.png");
@@ -99,9 +102,9 @@ public class UI
         createButton(buyOption, new Font("Times New Roman", Font.PLAIN, 18), "Buy", 350, 425, 100, 50);
         buyOption.setVisible(false);
 
-        auctionOption = new JLabel();
-        createButton(auctionOption, new Font("Times New Roman", Font.PLAIN, 18), "Auction", 350, 450, 100, 50);
-        auctionOption.setVisible(false);
+        passOption = new JLabel();
+        createButton(passOption, new Font("Times New Roman", Font.PLAIN, 18), "Pass", 350, 450, 100, 50);
+        passOption.setVisible(false);
     }
 
     public void createButton(JLabel optionLabel, Font font, String optionName, int labelX, int labelY, int labelWidth, int labelHeight)

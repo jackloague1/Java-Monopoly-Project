@@ -1,4 +1,4 @@
-package Game;
+package game;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -9,9 +9,14 @@ import java.util.ArrayList;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
-import Data.GameStates;
-import Data.SpaceData;
 
+import data.GameStates;
+import data.SpaceData;
+
+/**
+ * Performs any action required when a player lands on a space, including displaying the space name,
+ * and displaying options for the space.
+ */
 public class SpaceEvent 
 {
     public GamePanel gamePanel;
@@ -48,116 +53,173 @@ public class SpaceEvent
 
     public void draw(Graphics2D g2d)
     {
-        if (SpaceData.currentSpaceType == "Normal Property")
+        if (SpaceData.currentSpaceType == "Go")
         {
-            if (SpaceData.currentNormalProperty.owner != players.get(gamePanel.currentPlayerNumber-1))
+            drawSpaceName(g2d, SpaceData.go.name, 350, 375, 100, 50);
+            // ui.rollButton.setForeground(Color.white);
+            GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+        }
+        else if (SpaceData.currentSpaceType == "Jail")
+        {
+            drawSpaceName(g2d, SpaceData.jail.name, 350, 375, 100, 50);
+            // ui.rollButton.setForeground(Color.white);
+            GameStates.currentGameState = GameStates.NEXT_TURN_STATE;            
+        }
+        else if (SpaceData.currentSpaceType == "Free Parking")
+        {
+            drawSpaceName(g2d, SpaceData.freeParking.name, 350, 375, 100, 50);
+            // ui.rollButton.setForeground(Color.white);
+            GameStates.currentGameState = GameStates.NEXT_TURN_STATE;            
+        }
+        else if (SpaceData.currentSpaceType == "Go To Jail")
+        {
+            drawSpaceName(g2d, SpaceData.goToJail.name, 350, 375, 100, 50);
+            // ui.rollButton.setForeground(Color.white);
+            GameStates.currentGameState = GameStates.NEXT_TURN_STATE;            
+        }
+        else if (SpaceData.currentSpaceType == "Normal Property")
+        {
+            if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE)
             {
-                drawSpaceName(g2d, SpaceData.currentNormalProperty.name, 350, 375, 100, 50);
-                ui.buyOption.setVisible(true);
-                ui.auctionOption.setVisible(true);
-
-                if (gamePanel.players.get(gamePanel.currentPlayerNumber-1).money < SpaceData.currentNormalProperty.price)
+                if (SpaceData.currentNormalProperty.owner == null)
                 {
-                    ui.buyOption.setForeground(new Color(255, 255, 255, 75));
-                }
-                // gamePanel.buyOption = new JLabel();
-                // createOption(gamePanel.buyOption, "Buy", 350, 425, 100, 50);
+                    drawSpaceName(g2d, SpaceData.currentNormalProperty.name, 350, 375, 100, 50);
+                    ui.buyOption.setVisible(true);
+                    ui.passOption.setVisible(true);
 
-                // gamePanel.auctionOption = new JLabel();
-                // createOption(gamePanel.auctionOption, "Auction", 350, 450, 100, 50);
-                // JLabel buyOption = new JLabel();
-                // buyOption.setBounds(350, 425, 100, 50);
-                // buyOption.setText("Buy");
-                // buyOption.setHorizontalAlignment(SwingConstants.CENTER);
-                // buyOption.setVerticalAlignment(SwingConstants.CENTER);
-                // buyOption.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-                // buyOption.setForeground(Color.white);
-                // gamePanel.add(buyOption);
-                // drawOption(g2d, "Buy", 350, 425, 100, 50);
-                // drawOption(g2d, "Auction", 350, 450, 100, 50);
-                // g2d.drawPolygon(new int[] {300, 300, 330}, new int[] {425, 455, 440}, 3);
+                    if (gamePanel.players.get(gamePanel.currentPlayerNumber-1).money < SpaceData.currentNormalProperty.price)
+                    {
+                        ui.buyOption.setForeground(new Color(255, 255, 255, 75));
+                    }
+                    // gamePanel.buyOption = new JLabel();
+                    // createOption(gamePanel.buyOption, "Buy", 350, 425, 100, 50);
+
+                    // gamePanel.auctionOption = new JLabel();
+                    // createOption(gamePanel.auctionOption, "Auction", 350, 450, 100, 50);
+                    // JLabel buyOption = new JLabel();
+                    // buyOption.setBounds(350, 425, 100, 50);
+                    // buyOption.setText("Buy");
+                    // buyOption.setHorizontalAlignment(SwingConstants.CENTER);
+                    // buyOption.setVerticalAlignment(SwingConstants.CENTER);
+                    // buyOption.setFont(new Font("Times New Roman", Font.PLAIN, 18));
+                    // buyOption.setForeground(Color.white);
+                    // gamePanel.add(buyOption);
+                    // drawOption(g2d, "Buy", 350, 425, 100, 50);
+                    // drawOption(g2d, "Auction", 350, 450, 100, 50);
+                    // g2d.drawPolygon(new int[] {300, 300, 330}, new int[] {425, 455, 440}, 3);
+                }
+                else
+                {
+                    drawSpaceName(g2d, "Property Owned", 350, 375, 100, 50);
+                    // ui.rollButton.setForeground(Color.white);
+                    GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+                }
             }
             else
             {
-                drawSpaceName(g2d, "Property Owned", 350, 375, 100, 50);
-                ui.rollButton.setForeground(Color.white);
-                GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+                if (SpaceData.currentNormalProperty.owner != null)
+                {
+                    drawSpaceName(g2d, "Property Owned", 350, 375, 100, 50);
+                    // ui.rollButton.setForeground(Color.white);
+                }
             }
         }
         else if (SpaceData.currentSpaceType == "Railroad")
         {
-            if (SpaceData.currentRailroad.owner != players.get(gamePanel.currentPlayerNumber-1))
+            if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE)
             {
-                drawSpaceName(g2d, SpaceData.currentRailroad.name, 350, 375, 100, 50);
-                ui.buyOption.setVisible(true);
-                ui.auctionOption.setVisible(true);
-                
-                if (gamePanel.players.get(gamePanel.currentPlayerNumber-1).money < SpaceData.currentRailroad.price)
+                if (SpaceData.currentRailroad.owner == null)
                 {
-                    ui.buyOption.setForeground(new Color(255, 255, 255, 75));
+                    drawSpaceName(g2d, SpaceData.currentRailroad.name, 350, 375, 100, 50);
+                    ui.buyOption.setVisible(true);
+                    ui.passOption.setVisible(true);
+                    
+                    if (gamePanel.players.get(gamePanel.currentPlayerNumber-1).money < SpaceData.currentRailroad.price)
+                    {
+                        ui.buyOption.setForeground(new Color(255, 255, 255, 75));
+                    }
+                }
+                else
+                {
+                    drawSpaceName(g2d, "Property Owned", 350, 375, 100, 50);
+                    // ui.rollButton.setForeground(Color.white);
+                    GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
                 }
             }
             else
             {
-                drawSpaceName(g2d, "Property Owned", 350, 375, 100, 50);
-                ui.rollButton.setForeground(Color.white);
-                GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+                if (SpaceData.currentRailroad.owner != null)
+                {
+                    drawSpaceName(g2d, "Property Owned", 350, 375, 100, 50);
+                    // ui.rollButton.setForeground(Color.white);
+                }
             }
         }
         else if (SpaceData.currentSpaceType == "Utility")
         {
-            if (SpaceData.currentUtility.owner != players.get(gamePanel.currentPlayerNumber-1))
+            if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE)
             {
-                drawSpaceName(g2d, SpaceData.currentUtility.name, 350, 375, 100, 50);
-                ui.buyOption.setVisible(true);
-                ui.auctionOption.setVisible(true);
-
-                if (gamePanel.players.get(gamePanel.currentPlayerNumber-1).money < SpaceData.currentUtility.price)
+                if (SpaceData.currentUtility.owner == null)
                 {
-                    ui.buyOption.setForeground(new Color(255, 255, 255, 75));
+                    drawSpaceName(g2d, SpaceData.currentUtility.name, 350, 375, 100, 50);
+                    ui.buyOption.setVisible(true);
+                    ui.passOption.setVisible(true);
+
+                    if (gamePanel.players.get(gamePanel.currentPlayerNumber-1).money < SpaceData.currentUtility.price)
+                    {
+                        ui.buyOption.setForeground(new Color(255, 255, 255, 75));
+                    }
+                }
+                else
+                {
+                    drawSpaceName(g2d, "Property Owned", 350, 375, 100, 50);
+                    // ui.rollButton.setForeground(Color.white);
+                    GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
                 }
             }
             else
             {
-                drawSpaceName(g2d, "Property Owned", 350, 375, 100, 50);
-                ui.rollButton.setForeground(Color.white);
-                GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+                if (SpaceData.currentUtility.owner != null)
+                {
+                    drawSpaceName(g2d, "Property Owned", 350, 375, 100, 50);
+                    // ui.rollButton.setForeground(Color.white);
+                }
             }
         }
         else if (SpaceData.currentSpaceType == "Card")
         {
             if (SpaceData.currentCardSpace.name == "Chance")
             {
-                drawSpaceName(g2d, "Chance", 350, 375, 100, 50);
+                drawSpaceName(g2d, SpaceData.currentCardSpace.name, 350, 375, 100, 50);
             }
             else if (SpaceData.currentCardSpace.name == "Community Chest")
             {
-                drawSpaceName(g2d, "Community Chest", 350, 375, 100, 50);
+                drawSpaceName(g2d, SpaceData.currentCardSpace.name, 350, 375, 100, 50);
             }
 
-            ui.rollButton.setForeground(Color.white);
+            // ui.rollButton.setForeground(Color.white);
             GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
         }
         else if (SpaceData.currentSpaceType == "Tax")
         {
             if (SpaceData.currentTaxSpace.name == "Income Tax")
             {
-                drawSpaceName(g2d, "Income Tax", 350, 375, 100, 50);
+                drawSpaceName(g2d, SpaceData.currentTaxSpace.name, 350, 375, 100, 50);
             }
             else if (SpaceData.currentTaxSpace.name == "Luxury Tax")
             {
-                drawSpaceName(g2d, "Luxury Tax", 350, 375, 100, 50);
+                drawSpaceName(g2d, SpaceData.currentTaxSpace.name, 350, 375, 100, 50);
             }
 
-            ui.rollButton.setForeground(Color.white);
+            // ui.rollButton.setForeground(Color.white);
             GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
         }
-        else if (SpaceData.currentSpaceType == "Corner Space")
-        {
-            drawSpaceName(g2d, "Corner", 350, 375, 100, 50);
-            ui.rollButton.setForeground(Color.white);
-            GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
-        }
+        // else if (SpaceData.currentSpaceType == "Corner Space")
+        // {
+        //     drawSpaceName(g2d, "Corner", 350, 375, 100, 50);
+        //     ui.rollButton.setForeground(Color.white);
+        //     GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+        // }
     }
 
     public void drawSpaceName(Graphics2D g2d, String spaceName, int rectX, int rectY, int rectWidth, int rectHeight)

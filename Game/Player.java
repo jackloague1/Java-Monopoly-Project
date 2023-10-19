@@ -1,23 +1,23 @@
-package Game;
+package game;
 
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Image;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
-import Data.GameStates;
-import Data.SpaceData;
-import Spaces.Space;
+import spaces.Space;
+import data.GameStates;
+import data.Settings;
+import data.SpaceData;
 
-// Represents a player
-public class Player extends JPanel implements ActionListener
+/**
+ * Represents a player in game.
+ */
+public class Player extends JPanel
 {
     public GamePanel gamePanel;
     public SpaceData spaceData;
@@ -37,64 +37,86 @@ public class Player extends JPanel implements ActionListener
     public boolean running = false;
 
     public JLabel playerLabel;
-    public ImageIcon playerImage;
-
-    public Timer timer;
+    public Image playerImage;
     
-    public Player(GamePanel gamePanel, SpaceData spaceData, Dice dice, String name)
+    public Player(GamePanel gamePanel, SpaceData spaceData, Dice dice, int playerNumber, String name)
     {
         this.gamePanel = gamePanel;
         this.spaceData = spaceData;
         this.dice = dice;
+
+        this.playerNumber = playerNumber;
         this.name = name;
 
         playerLabel = new JLabel();
         playerLabel.setBounds(x, y, PLAYER_WIDTH, PLAYER_HEIGHT);
 
-        playerImage = new ImageIcon("testbox.png");
-        playerLabel.setIcon(playerImage);
+        if (playerNumber == 1)
+        {
+            playerImage = new ImageIcon("testbox.png").getImage();
+        }
+        else if (playerNumber == 2)
+        {
+            playerImage = new ImageIcon("testbox-2.png").getImage();
+        }
+        else if (playerNumber == 3)
+        {
+            playerImage = new ImageIcon("testbox-3.png").getImage();     
+        }
+        else if (playerNumber == 4)
+        {
+            playerImage = new ImageIcon("testbox-4.png").getImage();
+        }
 
         gamePanel.add(playerLabel);
     }
 
-    public void startTimer()
-    {
-        running = true;
-        timer = new Timer(200, this);
-        timer.start();
-    }
-
     public void move()
     {
-        if (dice.result != 0)
+        if (gamePanel.playerDelta >= Settings.PLAYER_MOVE_SPEED)
         {
-            dice.result--;
-
-            if (currentSpaceNumber < (SpaceData.NUM_OF_SPACES - 1))
+            if (dice.result != 0)
             {
-                currentSpaceNumber = currentSpaceNumber + 1;
+                dice.result--;
+
+                if (currentSpaceNumber < (SpaceData.NUM_OF_SPACES - 1))
+                {
+                    currentSpaceNumber = currentSpaceNumber + 1;
+                }
+                else
+                {
+                    currentSpaceNumber = 0;
+                }
+
+                coordinates = spaceData.getSpaceCoordinates(currentSpaceNumber);
+                x = coordinates[0];
+                y = coordinates[1];
+
+                checkifPassedGo();
             }
             else
             {
-                currentSpaceNumber = 0;
+                GameStates.currentGameState = GameStates.SPACE_EVENT_STATE;
+                checkifOnFreeParking();
+                gamePanel.update();
             }
-
-            coordinates = spaceData.getSpaceCoordinates(currentSpaceNumber);
-            x = coordinates[0];
-            y = coordinates[1];
-        }
-        else
-        {
-            GameStates.currentGameState = GameStates.SPACE_EVENT_STATE;
-            gamePanel.running = false;            
-            gamePanel.timer.stop();
-            gamePanel.update();
         }
     }
 
-    public void update()
+    public void checkifPassedGo()
     {
+        if (currentSpaceNumber == 0)
+        {
+            money = money + Settings.SALARY;
+        }
+    }
 
+    public void checkifOnFreeParking()
+    {
+        if (currentSpaceNumber == 20)
+        {
+            money = money + Settings.FREE_PARKING_BONUS;
+        }
     }
 
     public void paintComponent(Graphics g) {
@@ -107,23 +129,6 @@ public class Player extends JPanel implements ActionListener
 
     public void draw(Graphics2D g2d)
     {
-        // g2d.fillRect(x, y, 30, 30);
-        // g2d.drawImage(image, x, y, null);
-        playerLabel.setBounds(x, y, PLAYER_WIDTH, PLAYER_HEIGHT);
-
-        g2d.setFont(new Font("Times New Roman", Font.PLAIN, 18));
-        g2d.drawString("$ " + String.valueOf(money), 80, 50);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) 
-    {
-        if (running)
-        {
-            move();
-        }
-
-        revalidate();
-        repaint();
+        g2d.drawImage(playerImage, x, y, PLAYER_WIDTH, PLAYER_HEIGHT, null);
     }
 }

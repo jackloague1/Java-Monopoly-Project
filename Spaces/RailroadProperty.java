@@ -1,8 +1,10 @@
-package Spaces;
-// Represents a railroad space
+package spaces;
 
-import Game.Player;
+import game.Player;
 
+/**
+ * Inherits from the Space parent class and represents a railroad space.
+ */
 public class RailroadProperty extends Space 
 {
     public String group;

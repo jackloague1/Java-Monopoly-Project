@@ -1,15 +1,18 @@
-package ActionHandler;
+package actionhandler;
 
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
-import Data.GameStates;
-import Game.Dice;
-import Game.GamePanel;
-import Game.Player;
-import Game.UI;
+import data.GameStates;
+import game.Dice;
+import game.GamePanel;
+import game.Player;
+import game.UI;
 
+/**
+ * Processes user input from the keyboard.
+ */
 public class KeyHandler extends KeyAdapter
 {
     public GamePanel gamePanel;
@@ -38,7 +41,7 @@ public class KeyHandler extends KeyAdapter
                 GameStates.currentGameState = GameStates.PLAYER_MOVE_STATE;
                 
                 dice.getDiceResult();
-                gamePanel.startTimer();
+                // gamePanel.startTimer();
             }
         }
     }

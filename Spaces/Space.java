@@ -1,9 +1,11 @@
-package Spaces;
+package spaces;
 
 import java.util.ArrayList;
 
-// Represents a space on the board
-public class Space extends Board
+/**
+ * Represents a space on the board.
+ */
+public class Space
 {
     public int x;
     public int y;    

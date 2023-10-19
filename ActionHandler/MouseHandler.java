@@ -1,4 +1,4 @@
-package ActionHandler;
+package actionhandler;
 
 import java.awt.Color;
 import java.awt.event.MouseEvent;
@@ -7,13 +7,17 @@ import java.util.ArrayList;
 
 import javax.swing.JLabel;
 
-import Data.GameStates;
-import Data.SpaceData;
-import Game.Dice;
-import Game.GamePanel;
-import Game.Player;
-import Game.UI;
 
+import data.GameStates;
+import data.SpaceData;
+import game.Dice;
+import game.GamePanel;
+import game.Player;
+import game.UI;
+
+/**
+ * Processes user input from the mouse.
+ */
 public class MouseHandler implements MouseListener
 {
     public GamePanel gamePanel;
@@ -64,7 +68,8 @@ public class MouseHandler implements MouseListener
             if (currentLabel == ui.titleStartButton)
             {
                 GameStates.currentGameState = GameStates.CREATE_GAME_STATE;
-                gamePanel.repaint();
+                // gamePanel.update();
+                // gamePanel.repaint();
             }
         }
         else if (GameStates.currentGameState == GameStates.CREATE_GAME_STATE)
@@ -73,8 +78,11 @@ public class MouseHandler implements MouseListener
             {
                 if (ui.playerAmount.getText().isEmpty() == false && Integer.parseInt(ui.playerAmount.getText()) > 1)
                 {
-                    GameStates.currentGameState = GameStates.ROLL_STATE;
                     gamePanel.createPlayers();
+                    gamePanel.currentPlayerNumber = 1;
+                    GameStates.currentGameState = GameStates.ROLL_STATE;
+                    // gamePanel.update();
+                    // gamePanel.repaint();
                 }
             }
         }
@@ -85,7 +93,7 @@ public class MouseHandler implements MouseListener
                 GameStates.currentGameState = GameStates.PLAYER_MOVE_STATE;
                     
                 dice.getDiceResult();
-                gamePanel.startTimer();
+                // gamePanel.startTimer();
             }
         }
         else if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE)
@@ -104,8 +112,8 @@ public class MouseHandler implements MouseListener
                         ui.nextTurnButton.setForeground(Color.white);
                         // gamePanel.rollButton.setForeground(Color.white);
                         ui.buyOption.setVisible(false);
-                        ui.auctionOption.setVisible(false);
-                        gamePanel.repaint();
+                        ui.passOption.setVisible(false);
+                        // gamePanel.repaint();
                     }                    
                 }
                 else if (SpaceData.currentSpaceType == "Railroad")
@@ -120,8 +128,8 @@ public class MouseHandler implements MouseListener
                         ui.nextTurnButton.setForeground(Color.white);
                         // gamePanel.rollButton.setForeground(Color.white);
                         ui.buyOption.setVisible(false);
-                        ui.auctionOption.setVisible(false);
-                        gamePanel.repaint();
+                        ui.passOption.setVisible(false);
+                        // gamePanel.repaint();
                     }
                 }
                 else if (SpaceData.currentSpaceType == "Utility")
@@ -136,12 +144,12 @@ public class MouseHandler implements MouseListener
                         ui.nextTurnButton.setForeground(Color.white);
                         // gamePanel.rollButton.setForeground(Color.white);
                         ui.buyOption.setVisible(false);
-                        ui.auctionOption.setVisible(false);
-                        gamePanel.repaint();
+                        ui.passOption.setVisible(false);
+                        // gamePanel.repaint();
                     }
                 }
             }
-            else if (currentLabel == ui.auctionOption)
+            else if (currentLabel == ui.passOption)
             {
                 System.out.println("Auction");
                 
@@ -149,18 +157,19 @@ public class MouseHandler implements MouseListener
                 ui.nextTurnButton.setForeground(Color.white);
                 // gamePanel.rollButton.setForeground(Color.white);
                 ui.buyOption.setVisible(false);
-                ui.auctionOption.setVisible(false);
-                gamePanel.repaint();
+                ui.passOption.setVisible(false);
+                // gamePanel.repaint();
             }
         }
         else if (GameStates.currentGameState == GameStates.NEXT_TURN_STATE)
         {
             if (currentLabel == ui.nextTurnButton)
             {
+                gamePanel.changePlayerNumber();
                 GameStates.currentGameState = GameStates.ROLL_STATE;
                 ui.rollButton.setForeground(Color.white);
-                gamePanel.update();
-                gamePanel.repaint();
+                // gamePanel.update();
+                // gamePanel.repaint();
             }
         }
     }
@@ -222,7 +231,7 @@ public class MouseHandler implements MouseListener
                 }
             }
         }
-        else if (currentLabel == ui.auctionOption)
+        else if (currentLabel == ui.passOption)
         {
             currentLabel.setForeground(new Color(153, 235, 255));
         }
@@ -280,7 +289,7 @@ public class MouseHandler implements MouseListener
                 }
             }
         }
-        else if (currentLabel == ui.auctionOption)
+        else if (currentLabel == ui.passOption)
         {
             currentLabel.setForeground(Color.white);
         }

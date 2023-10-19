@@ -1,6 +1,8 @@
-package Spaces;
-// Represents a card space (Chance or Community Chest)
+package spaces;
 
+/**
+ * Inherits from the Space parent class and represents a card space (Chance or Community Chest).
+ */
 public class Card extends Space 
 {
 

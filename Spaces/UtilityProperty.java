@@ -1,8 +1,10 @@
-package Spaces;
-// Represents a utility space
+package spaces;
 
-import Game.Player;
+import game.Player;
 
+/**
+ * Inherits from the Space parent class and represents a utility space.
+ */
 public class UtilityProperty extends Space
 {
     public String group;
