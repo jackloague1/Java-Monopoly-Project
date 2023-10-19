@@ -1,7 +1,7 @@
 # Java-Monopoly-Project
 A recreation of the board game Monopoly using the Java language.
 
-![Screenshot](game-screenshot.png)
+![Screenshot](https://github.com/jackloague1/Java-Monopoly-Project/blob/main/game-screenshot.PNG)
 
 # Running the Game (Windows)
 To run the game:
