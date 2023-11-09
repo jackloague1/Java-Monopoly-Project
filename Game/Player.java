@@ -28,13 +28,14 @@ public class Player {
     public int playerNumber;
     public String name;
     public int money;
+    public boolean passedGo;
     public ArrayList<Space> propertiesOwned;
 
     public JLabel playerLabel;
     public Image playerImage;
     
     /**
-    * Constructor method.
+    * Constructor.
     */
     public Player(GamePanel gamePanel, SpaceData spaceData, Dice dice, int playerNumber, 
                   String name) {
@@ -73,6 +74,7 @@ public class Player {
         ycoordinate = 661;
         currentSpaceNumber = 30;
         money = 1500;
+        passedGo = false;
         propertiesOwned = new ArrayList<Space>();
 
         gamePanel.add(playerLabel);
@@ -98,7 +100,12 @@ public class Player {
 
                 checkifPassedGo();
             } else {
-                GameStates.currentGameState = GameStates.SPACE_EVENT_STATE;
+                if (passedGo == false) {
+                    GameStates.currentGameState = GameStates.SPACE_EVENT_STATE;
+                } else {
+                    passedGo = false;
+                    GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+                }
                 checkifOnFreeParking();
                 gamePanel.update();
             }
@@ -112,6 +119,7 @@ public class Player {
         SpaceData.getSpace(currentSpaceNumber);
 
         if (SpaceData.currentSpaceType == "Go") {
+            passedGo = true;
             money = money + Settings.SALARY;
 
             GameStates.currentGameState = GameStates.SPACE_EVENT_STATE;

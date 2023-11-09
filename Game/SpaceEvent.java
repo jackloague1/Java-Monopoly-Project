@@ -21,7 +21,7 @@ public class SpaceEvent {
     public SpaceData spaceData;
 
     /**
-    * Constructor method.
+    * Constructor.
     */
     public SpaceEvent(GamePanel gamePanel, UI ui, ArrayList<Player> players, SpaceData spaceData) {
         this.gamePanel = gamePanel;
@@ -57,9 +57,11 @@ public class SpaceEvent {
     */
     public void draw(Graphics2D g2d) {
         if (SpaceData.currentSpaceType == "Go") {
-            drawSpaceName(g2d, SpaceData.go.name, 350, 375, 100, 50);
-            HelperFunctions.drawText(g2d, "You collected $200 salary!", Color.white, 18, 350, 425, 
-                                     100, 50, true, true);
+            if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE) {
+                drawSpaceName(g2d, SpaceData.go.name, 350, 375, 100, 50);
+                HelperFunctions.drawText(g2d, "You collected $200 salary!", Color.white, 18, 
+                                         350, 425, 100, 50, true, true);
+            }
             // ui.rollButton.setForeground(Color.white);
         } else if (SpaceData.currentSpaceType == "Jail") {
             drawSpaceName(g2d, SpaceData.jail.name, 350, 375, 100, 50);
@@ -69,8 +71,7 @@ public class SpaceEvent {
             drawSpaceName(g2d, SpaceData.freeParking.name, 350, 375, 100, 50);
             // ui.rollButton.setForeground(Color.white);
             GameStates.currentGameState = GameStates.NEXT_TURN_STATE;            
-        }
-        else if (SpaceData.currentSpaceType == "Go To Jail") {
+        } else if (SpaceData.currentSpaceType == "Go To Jail") {
             drawSpaceName(g2d, SpaceData.goToJail.name, 350, 375, 100, 50);
             // ui.rollButton.setForeground(Color.white);
             GameStates.currentGameState = GameStates.NEXT_TURN_STATE;            
