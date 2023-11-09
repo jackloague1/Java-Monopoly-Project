@@ -1,6 +1,6 @@
 {
     "java.format.settings.url": ".vscode/java-formatter.xml",
-    "java.checkstyle.configuration": "/google_checks.xml",
+    "java.checkstyle.configuration": "${workspaceFolder}\\.vscode\\google_checks_custom.xml",
     "java.checkstyle.version": "10.12.3",
     "[java]": {
         "editor.tabSize": 4

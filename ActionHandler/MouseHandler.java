@@ -80,6 +80,7 @@ public class MouseHandler implements MouseListener
                 {
                     gamePanel.createPlayers();
                     gamePanel.currentPlayerNumber = 1;
+                    ui.currentButton = ui.boardButtons[0];
                     GameStates.currentGameState = GameStates.ROLL_STATE;
                     // gamePanel.update();
                     // gamePanel.repaint();
@@ -88,7 +89,7 @@ public class MouseHandler implements MouseListener
         }
         else if (GameStates.currentGameState == GameStates.ROLL_STATE)
         {
-            if (currentLabel == ui.rollButton)
+            if (currentLabel == ui.rollButtonText)
             {
                 GameStates.currentGameState = GameStates.PLAYER_MOVE_STATE;
                     
@@ -98,7 +99,7 @@ public class MouseHandler implements MouseListener
         }
         else if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE)
         {
-            if (currentLabel == ui.buyOption)
+            if (currentLabel == ui.buyOptionText)
             {
                 if (SpaceData.currentSpaceType == "Normal Property")
                 {
@@ -109,10 +110,10 @@ public class MouseHandler implements MouseListener
                         System.out.println("Property bought");
 
                         GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
-                        ui.nextTurnButton.setForeground(Color.white);
+                        ui.nextTurnButtonText.setForeground(Color.white);
                         // gamePanel.rollButton.setForeground(Color.white);
-                        ui.buyOption.setVisible(false);
-                        ui.passOption.setVisible(false);
+                        ui.buyOptionText.setVisible(false);
+                        ui.passOptionText.setVisible(false);
                         // gamePanel.repaint();
                     }                    
                 }
@@ -125,10 +126,10 @@ public class MouseHandler implements MouseListener
                         System.out.println("Property bought");
 
                         GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
-                        ui.nextTurnButton.setForeground(Color.white);
+                        ui.nextTurnButtonText.setForeground(Color.white);
                         // gamePanel.rollButton.setForeground(Color.white);
-                        ui.buyOption.setVisible(false);
-                        ui.passOption.setVisible(false);
+                        ui.buyOptionText.setVisible(false);
+                        ui.passOptionText.setVisible(false);
                         // gamePanel.repaint();
                     }
                 }
@@ -141,33 +142,33 @@ public class MouseHandler implements MouseListener
                         System.out.println("Property bought");
 
                         GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
-                        ui.nextTurnButton.setForeground(Color.white);
+                        ui.nextTurnButtonText.setForeground(Color.white);
                         // gamePanel.rollButton.setForeground(Color.white);
-                        ui.buyOption.setVisible(false);
-                        ui.passOption.setVisible(false);
+                        ui.buyOptionText.setVisible(false);
+                        ui.passOptionText.setVisible(false);
                         // gamePanel.repaint();
                     }
                 }
             }
-            else if (currentLabel == ui.passOption)
+            else if (currentLabel == ui.passOptionText)
             {
                 System.out.println("Auction");
                 
                 GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
-                ui.nextTurnButton.setForeground(Color.white);
+                ui.nextTurnButtonText.setForeground(Color.white);
                 // gamePanel.rollButton.setForeground(Color.white);
-                ui.buyOption.setVisible(false);
-                ui.passOption.setVisible(false);
+                ui.buyOptionText.setVisible(false);
+                ui.passOptionText.setVisible(false);
                 // gamePanel.repaint();
             }
         }
         else if (GameStates.currentGameState == GameStates.NEXT_TURN_STATE)
         {
-            if (currentLabel == ui.nextTurnButton)
+            if (currentLabel == ui.nextTurnButtonText)
             {
                 gamePanel.changePlayerNumber();
                 GameStates.currentGameState = GameStates.ROLL_STATE;
-                ui.rollButton.setForeground(Color.white);
+                ui.rollButtonText.setForeground(Color.white);
                 // gamePanel.update();
                 // gamePanel.repaint();
             }
@@ -193,21 +194,21 @@ public class MouseHandler implements MouseListener
         {
             currentLabel.setForeground(new Color(153, 235, 255));
         }
-        else if (currentLabel == ui.rollButton)
+        else if (currentLabel == ui.rollButtonText)
         {
             if (GameStates.currentGameState == GameStates.ROLL_STATE)
             {
                 currentLabel.setForeground(new Color(153, 235, 255));
             }
         }
-        else if (currentLabel == ui.nextTurnButton)
+        else if (currentLabel == ui.nextTurnButtonText)
         {
             if (GameStates.currentGameState == GameStates.NEXT_TURN_STATE)
             {
                 currentLabel.setForeground(new Color(153, 235, 255));
             }
         }
-        else if (currentLabel == ui.buyOption)
+        else if (currentLabel == ui.buyOptionText)
         {
             if (SpaceData.currentSpaceType == "Normal Property")
             {
@@ -231,7 +232,7 @@ public class MouseHandler implements MouseListener
                 }
             }
         }
-        else if (currentLabel == ui.passOption)
+        else if (currentLabel == ui.passOptionText)
         {
             currentLabel.setForeground(new Color(153, 235, 255));
         }
@@ -251,21 +252,21 @@ public class MouseHandler implements MouseListener
         {
             currentLabel.setForeground(Color.white);
         }
-        else if (currentLabel == ui.rollButton)
+        else if (currentLabel == ui.rollButtonText)
         {
             if (GameStates.currentGameState == GameStates.ROLL_STATE)
             {
                 currentLabel.setForeground(Color.white);
             }
         }
-        else if (currentLabel == ui.nextTurnButton)
+        else if (currentLabel == ui.nextTurnButtonText)
         {
             if (GameStates.currentGameState == GameStates.NEXT_TURN_STATE)
             {
                 currentLabel.setForeground(Color.white);
             }    
         }
-        else if (currentLabel == ui.buyOption)
+        else if (currentLabel == ui.buyOptionText)
         {
             if (SpaceData.currentSpaceType == "Normal Property")
             {
@@ -289,7 +290,7 @@ public class MouseHandler implements MouseListener
                 }
             }
         }
-        else if (currentLabel == ui.passOption)
+        else if (currentLabel == ui.passOptionText)
         {
             currentLabel.setForeground(Color.white);
         }

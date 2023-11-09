@@ -5,10 +5,9 @@ import java.util.ArrayList;
 /**
  * Represents a space on the board.
  */
-public class Space
-{
-    public int x;
-    public int y;    
+public class Space {
+    public int xcoordinate;
+    public int ycoordinate; 
     public int spaceNumber;
     public String type;
     public String name;

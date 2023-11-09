@@ -5,6 +5,9 @@ package data;
  */
 public class Settings 
 {
+    // The amount divided by 60 (FPS) the rolled dice will move per second across the screen.
+    public static final int DICE_MOVE_SPEED = 2;
+
     // The amount divided by 60 (FPS) the player token will move per second across the screen.
     public static final int PLAYER_MOVE_SPEED = 10;
 
