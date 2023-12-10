@@ -237,7 +237,14 @@ public class MouseHandler implements MouseListener {
         } else if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE) {
             if (currentLabel == ui.okButton) {
                 if (spaceData.currentSpaceType == "Go") {
-                    GameStates.currentGameState = GameStates.PLAYER_MOVE_STATE;
+                    if (dice.result == 0) {
+                        ui.managerButton.setForeground(Color.white);
+                        ui.nextTurnButton.setForeground(Color.white);
+                        GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+                    } else {
+                        ui.managerButton.setForeground(new Color(255, 255, 255, 75));
+                        GameStates.currentGameState = GameStates.PLAYER_MOVE_STATE;
+                    }
                 } else {
                     ui.managerButton.setForeground(Color.white);
                     ui.nextTurnButton.setForeground(Color.white);
