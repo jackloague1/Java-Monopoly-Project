@@ -32,7 +32,7 @@ public class SpaceData
                                               110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 
                                               177, 229, 281, 333, 385, 437, 489, 541, 593, 660, 
                                               660, 660, 660, 660, 660, 660, 660, 660, 660};
-    public final int[] yCoordinates = {660, 660, 660, 660, 660, 660, 660, 660, 660, 660, 660,
+    public final int[] yCoordinates = {660, 660, 660, 660, 660, 660, 660, 660, 660, 660, 680,
                                               593, 541, 489, 437, 385, 333, 281, 229, 177, 110, 
                                               110, 110, 110, 110, 110, 110, 110, 110, 110, 110, 
                                               177, 229, 281, 333, 385, 437, 489, 541, 593};
@@ -90,28 +90,28 @@ public class SpaceData
                                      11, 13, 14, 16, 18, 19, 
                                      21, 23, 24, 26, 27, 29, 
                                      31, 32, 34, 37, 39 };
-        final String[] names = { "Mediterranean Avenue", 
-                                 "Baltic Avenue", 
-                                 "Oriental Avenue", 
-                                 "Vermont Avenue", 
-                                 "Connecticut Avenue", 
-                                 "St. Charles Place", 
-                                 "States Avenue", 
-                                 "Virginia Avenue", 
-                                 "St. James Place", 
-                                 "Tennesse Avenue", 
-                                 "New York Avenue", 
-                                 "Kentucky Avenue", 
-                                 "Indiana Avenue", 
-                                 "Illinois Avenue", 
-                                 "Atlantic Avenue", 
-                                 "Ventnor Avenue", 
-                                 "Marvin Gardens", 
-                                 "Pacific Avenue", 
-                                 "North Carolina Avenue", 
-                                 "Pennsylvania Avenue", 
-                                 "Park Place", 
-                                 "Boardwalk" };
+        final String[] names = { "Student Housing", 
+                                 "Residence Halls", 
+                                 "Eastside Structure", 
+                                 "Nutwood Structure", 
+                                 "St. College Structure", 
+                                 "Dan Black Hall", 
+                                 "McCarthy Hall", 
+                                 "Visual Arts", 
+                                 "Langsdorf Hall", 
+                                 "Mihaylo Hall", 
+                                 "University Hall", 
+                                 "Humanities", 
+                                 "Pollak Library", 
+                                 "Education Classroom", 
+                                 "Kinesiology", 
+                                 "Engineering", 
+                                 "Computer Science", 
+                                 "Student Union", 
+                                 "Rec Center", 
+                                 "Titan Shops", 
+                                 "Becker Amphitheater", 
+                                 "Performing Arts Center" };
         final String[] groups = { "Purple", 
                                   "Purple", 
                                   "Light Blue", 
@@ -189,12 +189,15 @@ public class SpaceData
         final int[] xCoordinates = { 386, 0, 0, 0 };
         final int[] yCoordinates = { 661, 0, 0, 0 };
         final int[] spaceNumbers = { 5, 15, 25, 35 };
-        final String[] names = { "Reading Railroad", 
-                                 "Pennsylvania Railroad", 
-                                 "B. & O. Railroad", 
-                                 "Short Line" };
+        final String[] names = { "Anderson Field", 
+                                 "Goodwin Field", 
+                                 "Titan Gymnasium", 
+                                 "Titan Stadium" };
         final int[] prices = { 200, 200, 200, 200 };
-        final int[] rentPrices = { 25, 25, 25, 25 };
+        final int[][] groupRent = { {25, 50, 100, 200},
+                                    {25, 50, 100, 200},
+                                    {25, 50, 100, 200},
+                                    {25, 50, 100, 200} };
 
         for (int i = 0; i < NUM_OF_RAILROAD_PROPERTIES; i++) {
             railroadProperties.add(new RailroadProperty(xCoordinates[i], 
@@ -202,7 +205,7 @@ public class SpaceData
                                                         spaceNumbers[i], 
                                                         names[i], 
                                                         prices[i], 
-                                                        rentPrices[i]));
+                                                        groupRent[i]));
         }
     }
 
@@ -213,15 +216,18 @@ public class SpaceData
         final int[] xCoordinates = { 0, 0 };
         final int[] yCoordinates = { 0, 0 };
         final int[] spaceNumbers = { 12, 28 };
-        final String[] names = { "Electric Company", "Water Works" };
+        final String[] names = { "CSUF Electric", "CSUF Water" };
         final int[] prices = { 150, 150 };
+        final int[][] rentMultiplier = { {4, 10},
+                                         {4, 10} };
 
         for (int i = 0; i < NUM_OF_UTILITY_PROPERTIES; i++) {
             utilityProperties.add(new UtilityProperty(xCoordinates[i], 
                                                       yCoordinates[i], 
                                                       spaceNumbers[i], 
                                                       names[i], 
-                                                      prices[i]));
+                                                      prices[i],
+                                                      rentMultiplier[i]));
         }
     }
 
@@ -252,10 +258,90 @@ public class SpaceData
         final int[] yCoordinates = { 661, 0 };
         final int[] spaceNumbers = { 4, 38 };
         final String[] names = { "Income Tax", "Luxury Tax" };
+        final int[] fees = { 200, 75, };
 
         for (int i = 0; i < NUM_OF_TAX_SPACES; i++) {
-            taxSpaces.add(new Tax(xCoordinates[i], yCoordinates[i], spaceNumbers[i], names[i]));
+            taxSpaces.add(new Tax(xCoordinates[i], yCoordinates[i], spaceNumbers[i], names[i], 
+                          fees[i]));
         }
+    }
+
+    /**
+    * Checks if a single player owns all properties of a certain group.
+    */
+    public boolean isMonopoly() {
+        ArrayList<NormalProperty> groupNormalProperties = new ArrayList<NormalProperty>();
+
+        int groupNormalPropertiesIndex = 0;
+
+        for (int i = 0; i < normalProperties.size(); i++) {
+            if (normalProperties.get(i).group == currentNormalProperty.group) {
+                if (groupNormalProperties.size() == 0) {
+                    groupNormalProperties.add(normalProperties.get(i));
+                    groupNormalPropertiesIndex++;
+                } else {
+                    if (normalProperties.get(i).owner 
+                        == groupNormalProperties.get(groupNormalPropertiesIndex - 1).owner) {
+                        groupNormalProperties.add(normalProperties.get(i));
+                        groupNormalPropertiesIndex++;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+    * Determines how many railroads or utilities a single player owns.
+    */
+    public int howManyInGroup() {
+        
+        int number = 0;
+
+        if (currentSpaceType == "Railroad") {
+            for (int i = 0; i < railroadProperties.size(); i++) {
+                if (railroadProperties.get(i).owner == currentRailroad.owner) {
+                        number++;
+                    }
+                }
+        } else if (currentSpaceType == "Utility") {
+            for (int i = 0; i < utilityProperties.size(); i++) {
+                if (utilityProperties.get(i).owner == currentUtility.owner) {
+                    number++;
+                }
+            }
+        }
+
+        return number;
+    }
+
+    /**
+    * Sets the current rent of the current property.
+    */
+    public int setRent() {
+        int rent = 0;
+
+        if (currentSpaceType == "Normal Property") {
+            if (currentNormalProperty.buildingAmount > 0) {
+                currentNormalProperty.currentRent 
+                    = currentNormalProperty.buildingRent[currentNormalProperty.buildingAmount - 1];
+            } else if (isMonopoly() == true) {
+                currentNormalProperty.currentRent = currentNormalProperty.normalRent * 2;
+            } else {
+                currentNormalProperty.currentRent = currentNormalProperty.normalRent;
+            }
+        } else if (currentSpaceType == "Railroad") {
+            currentRailroad.currentRent = currentRailroad.groupRent[howManyInGroup() - 1];
+        } else if (currentSpaceType == "Utility") {
+            currentUtility.currentMultiplier 
+                = currentUtility.rentMultiplier[howManyInGroup() - 1];
+            System.out.print("Current utility multipler: " + currentUtility.currentMultiplier);
+        }
+
+        return rent;
     }
 
     /**

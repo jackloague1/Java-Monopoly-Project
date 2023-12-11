@@ -27,11 +27,14 @@ public class Player {
     public int ycoordinate;
     public int coordinateOffset;
     public int currentSpaceNumber;
+    public int spacesLeftToMove;
     public int playerNumber;
     public String name;
     public int money;
-    public boolean passedGo;
+    public boolean isInJail;
     public ArrayList<Space> propertiesOwned;
+    public int doublesStreak;
+    public int turnsInJail;
 
     public JLabel playerLabel;
     public Image token;
@@ -61,11 +64,14 @@ public class Player {
 
         coordinates = new int[2];
         xcoordinate = 660;
-        ycoordinate = 660;
+        ycoordinate = 660 - coordinateOffset;
         currentSpaceNumber = 0;
+        spacesLeftToMove = 0;
         money = 1500;
-        passedGo = false;
+        isInJail = false;
         propertiesOwned = new ArrayList<Space>();
+        doublesStreak = 0;
+        turnsInJail = 0;
 
         gamePanel.add(playerLabel);
     }
@@ -75,8 +81,8 @@ public class Player {
     */
     public void move() {
         if (gamePanel.playerDelta >= Settings.PLAYER_MOVE_SPEED) {
-            if (dice.result != 0) {
-                dice.result--;
+            if (spacesLeftToMove != 0) {
+                spacesLeftToMove--;
 
                 if (currentSpaceNumber < (spaceData.NUM_OF_SPACES - 1)) {
                     currentSpaceNumber = currentSpaceNumber + 1;
@@ -90,15 +96,22 @@ public class Player {
 
                 checkifPassedGo();
             } else {
-                // if (passedGo == true) {
-                //     passedGo = false;
-                // }
                 ui.managerButton.setForeground(Color.white);
                 GameStates.currentGameState = GameStates.SPACE_EVENT_STATE;
                 checkifOnFreeParking();
-                gamePanel.update();
             }
         }
+    }
+
+    /**
+    * Moves a player directly to the Jail space.
+    */
+    public void moveToJail() {
+        isInJail = true;
+        doublesStreak = 0;
+        currentSpaceNumber = 10;
+        xcoordinate =  120;
+        ycoordinate = 645;
     }
 
     /**
@@ -108,7 +121,6 @@ public class Player {
         spaceData.getSpace(currentSpaceNumber);
 
         if (spaceData.currentSpaceType == "Go") {
-            // passedGo = true;
             money = money + Settings.SALARY;
             ui.managerButton.setForeground(Color.white);
 

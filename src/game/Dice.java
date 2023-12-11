@@ -1,8 +1,12 @@
 package src.game;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
+import src.data.GameStates;
+import src.data.Settings;
 
 /**
  * Represents the dice in game.
@@ -17,10 +21,12 @@ public class Dice {
     final int diceHeight;
 
     public GamePanel gamePanel;
+    public ArrayList<Player> players;
 
     public int leftDie;
     public int rightDie;
     public int result;
+    public boolean doubles;
 
     int leftDieX;
     int leftDieY;
@@ -37,8 +43,9 @@ public class Dice {
     /**
     * Constructor.
     */
-    public Dice(GamePanel gamePanel) {
+    public Dice(GamePanel gamePanel, ArrayList<Player> players) {
         this.gamePanel = gamePanel;
+        this.players = players;
 
         diceSpriteSheet = new ImageIcon("images/Dice-Sprite-Sheet.png").getImage();
 
@@ -50,6 +57,7 @@ public class Dice {
 
         leftDie = 1;
         rightDie = 1;
+        doubles = false;
 
         leftDieX = 361;
         leftDieY = 532;
@@ -64,10 +72,17 @@ public class Dice {
     public void getDiceResult() {
         leftDie = (int) ((Math.random() * (maxNumber)) + minNumber);
         rightDie = (int) ((Math.random() * (maxNumber)) + minNumber);
-        // leftDie = 5;
-        // rightDie = 5;
+        // leftDie = 4;
+        // rightDie = 3;
         System.out.println(leftDie);
         System.out.println(rightDie);
+
+        if (leftDie == rightDie) {
+            doubles = true;
+            if (players.get(gamePanel.currentPlayerNumber - 1).isInJail == false) {
+                players.get(gamePanel.currentPlayerNumber - 1).doublesStreak++;
+            }
+        }
 
         result = leftDie + rightDie;
 
@@ -75,6 +90,21 @@ public class Dice {
         rightDieSpriteSheetY = 0;
         rightDieSpriteSheetX = diceWidth * (rightDie - 1);
         rightDieSpriteSheetY = 0;       
+    }
+    
+    /**
+    * Delays any action from happening after the dice have been rolled for a set amount of time.
+    */
+    public void delay() {
+        if (gamePanel.diceDelta >= Settings.DICE_DELAY) {
+            if (players.get(gamePanel.currentPlayerNumber - 1).isInJail == true
+                || players.get(gamePanel.currentPlayerNumber - 1).doublesStreak >= 3) {
+                gamePanel.ui.managerButton.setForeground(Color.white);
+                GameStates.currentGameState = GameStates.SPACE_EVENT_STATE;
+            } else {
+                GameStates.currentGameState = GameStates.PLAYER_MOVE_STATE;
+            }
+        }
     }
 
     // public void move()

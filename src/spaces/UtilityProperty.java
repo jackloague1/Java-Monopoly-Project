@@ -8,14 +8,16 @@ import src.game.Player;
 public class UtilityProperty extends Space {
     public String group;
     public int price;
-    public int rent;
+    public int[] rentMultiplier;
+    public int currentMultiplier;
 
     public Player owner;
 
     /**
     * Constructor.
     */
-    public UtilityProperty(int x, int y, int spaceNumber, String name, int price) {
+    public UtilityProperty(int x, int y, int spaceNumber, String name, int price, 
+                           int[] rentMultiplier) {
         super.xcoordinate = x;
         super.ycoordinate = y;        
         super.spaceNumber = spaceNumber;
@@ -24,5 +26,8 @@ public class UtilityProperty extends Space {
         
         this.group = "Utility";
         this.price = price;
+        this.rentMultiplier = rentMultiplier;
+        
+        currentMultiplier = rentMultiplier[0];
     }
 }

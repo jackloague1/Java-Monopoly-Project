@@ -26,6 +26,7 @@ public class MouseHandler implements MouseListener {
     public ArrayList<Profile> profiles;
     public ArrayList<Player> players;
 
+    Player currentPlayer;
     JLabel currentLabel;
 
     /**
@@ -228,16 +229,33 @@ public class MouseHandler implements MouseListener {
                 }
             }
         } else if (GameStates.currentGameState == GameStates.ROLL_STATE) {
+            currentPlayer = players.get(gamePanel.currentPlayerNumber - 1);
             if (currentLabel == ui.rollButton) {
                 dice.getDiceResult();
+                currentPlayer.spacesLeftToMove = dice.result;
                 ui.rollButton.setForeground(new Color(255, 255, 255, 75));
                 ui.managerButton.setForeground(new Color(255, 255, 255, 75));
-                GameStates.currentGameState = GameStates.PLAYER_MOVE_STATE;
+                GameStates.currentGameState = GameStates.DICE_DELAY_STATE;
+            } else if (currentLabel == ui.managerButton) {
+                ui.managerButton.setForeground(Color.white);
+                GameStates.previousGameState = GameStates.currentGameState;
+                GameStates.currentGameState = GameStates.MANAGER_MENU_STATE;
             }
         } else if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE) {
-            if (currentLabel == ui.okButton) {
-                if (spaceData.currentSpaceType == "Go") {
-                    if (dice.result == 0) {
+            currentPlayer = players.get(gamePanel.currentPlayerNumber - 1);
+
+            if (currentLabel == ui.managerButton) {
+                ui.managerButton.setForeground(Color.white);
+                GameStates.previousGameState = GameStates.currentGameState;
+                GameStates.currentGameState = GameStates.MANAGER_MENU_STATE;
+            } else if (currentLabel == ui.okButton) {
+                if (currentPlayer.doublesStreak >= 3) {
+                    currentPlayer.moveToJail();
+                    ui.managerButton.setForeground(Color.white);
+                    ui.nextTurnButton.setForeground(Color.white);
+                    GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+                } else if (spaceData.currentSpaceType == "Go") {
+                    if (currentPlayer.spacesLeftToMove == 0) {
                         ui.managerButton.setForeground(Color.white);
                         ui.nextTurnButton.setForeground(Color.white);
                         GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
@@ -245,6 +263,35 @@ public class MouseHandler implements MouseListener {
                         ui.managerButton.setForeground(new Color(255, 255, 255, 75));
                         GameStates.currentGameState = GameStates.PLAYER_MOVE_STATE;
                     }
+                } else if (spaceData.currentSpaceType == spaceData.jail.type) {
+                    if (currentPlayer.isInJail == true) {
+                        if (dice.doubles == true) {
+                            currentPlayer.isInJail = false;
+                            currentPlayer.turnsInJail = 0;
+                            dice.doubles = false;
+                            ui.managerButton.setForeground(new Color(255, 255, 255, 75));
+                            GameStates.currentGameState = GameStates.DICE_DELAY_STATE;
+                        } else if (currentPlayer.turnsInJail >= 3) {
+                            currentPlayer.isInJail = false;
+                            currentPlayer.turnsInJail = 0;
+                            currentPlayer.money -= Settings.JAIL_BAIL;
+                            ui.managerButton.setForeground(new Color(255, 255, 255, 75));
+                            GameStates.currentGameState = GameStates.DICE_DELAY_STATE;
+                        } else {
+                            ui.managerButton.setForeground(Color.white);
+                            ui.nextTurnButton.setForeground(Color.white);
+                            GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+                        }
+                    } else {
+                        ui.managerButton.setForeground(Color.white);
+                        ui.nextTurnButton.setForeground(Color.white);
+                        GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+                    }
+                } else if (spaceData.currentSpaceType == spaceData.goToJail.type) {
+                    currentPlayer.moveToJail();
+                    ui.managerButton.setForeground(Color.white);
+                    ui.nextTurnButton.setForeground(Color.white);
+                    GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
                 } else {
                     ui.managerButton.setForeground(Color.white);
                     ui.nextTurnButton.setForeground(Color.white);
@@ -254,13 +301,10 @@ public class MouseHandler implements MouseListener {
                 ui.okButton.setForeground(Color.white);
             } else if (currentLabel == ui.buyOptionText) {
                 if (spaceData.currentSpaceType == "Normal Property") {
-                    if (players.get(gamePanel.currentPlayerNumber - 1).money 
-                        >= spaceData.currentNormalProperty.price) {
-                        spaceData.currentNormalProperty.owner = 
-                            players.get(gamePanel.currentPlayerNumber - 1);
-                        players.get(gamePanel.currentPlayerNumber - 1).money 
-                            = players.get(gamePanel.currentPlayerNumber - 1).money 
-                            - spaceData.currentNormalProperty.price;
+                    if (currentPlayer.money >= spaceData.currentNormalProperty.price) {
+                        spaceData.currentNormalProperty.owner = currentPlayer;
+                        currentPlayer.money -= spaceData.currentNormalProperty.price;
+                        spaceData.setRent();
                         System.out.println("Property bought");
 
                         ui.managerButton.setForeground(Color.white);
@@ -271,13 +315,10 @@ public class MouseHandler implements MouseListener {
                         GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
                     }                    
                 } else if (spaceData.currentSpaceType == "Railroad") {
-                    if (players.get(gamePanel.currentPlayerNumber - 1).money 
-                        >= spaceData.currentRailroad.price) {
-                        spaceData.currentRailroad.owner = 
-                            players.get(gamePanel.currentPlayerNumber - 1);
-                        players.get(gamePanel.currentPlayerNumber - 1).money 
-                            = players.get(gamePanel.currentPlayerNumber - 1).money 
-                            - spaceData.currentRailroad.price;
+                    if (currentPlayer.money >= spaceData.currentRailroad.price) {
+                        spaceData.currentRailroad.owner = currentPlayer;
+                        currentPlayer.money -= spaceData.currentRailroad.price;
+                        spaceData.setRent();
                         System.out.println("Property bought");
 
                         ui.managerButton.setForeground(Color.white);
@@ -288,13 +329,10 @@ public class MouseHandler implements MouseListener {
                         GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
                     }
                 } else if (spaceData.currentSpaceType == "Utility") {
-                    if (players.get(gamePanel.currentPlayerNumber - 1).money 
-                        >= spaceData.currentUtility.price) {
-                        spaceData.currentUtility.owner = 
-                            players.get(gamePanel.currentPlayerNumber - 1);
-                        players.get(gamePanel.currentPlayerNumber - 1).money 
-                            = players.get(gamePanel.currentPlayerNumber - 1).money 
-                            - spaceData.currentUtility.price;
+                    if (currentPlayer.money >= spaceData.currentUtility.price) {
+                        spaceData.currentUtility.owner = currentPlayer;
+                        currentPlayer.money -= spaceData.currentUtility.price;
+                        spaceData.setRent();
                         System.out.println("Property bought");
 
                         ui.managerButton.setForeground(Color.white);
@@ -310,17 +348,126 @@ public class MouseHandler implements MouseListener {
                 
                 ui.managerButton.setForeground(Color.white);
                 ui.nextTurnButton.setForeground(Color.white);
-                ui.buyOptionText.setVisible(false);
+                ui.buyOptionText.setForeground(Color.white);
                 ui.passOptionText.setForeground(Color.white);
+                ui.buyOptionText.setVisible(false);
                 ui.passOptionText.setVisible(false);
                 GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+            } else if (currentLabel == ui.payButton) {
+                if (spaceData.currentSpaceType == "Normal Property") {
+                    if (currentPlayer.money >= spaceData.currentNormalProperty.currentRent) {
+                        currentPlayer.money -= spaceData.currentNormalProperty.currentRent;
+                        spaceData.currentNormalProperty.owner.money 
+                            += spaceData.currentNormalProperty.currentRent;
+                        ui.managerButton.setForeground(Color.white);
+                        ui.nextTurnButton.setForeground(Color.white);
+                        ui.payButton.setForeground(Color.white);
+                        GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+                    }
+                } else if (spaceData.currentSpaceType == "Railroad") {
+                    if (currentPlayer.money >= spaceData.currentRailroad.currentRent) {
+                        currentPlayer.money -= spaceData.currentRailroad.currentRent;
+                        spaceData.currentRailroad.owner.money 
+                            += spaceData.currentRailroad.currentRent;
+                        ui.managerButton.setForeground(Color.white);
+                        ui.nextTurnButton.setForeground(Color.white);
+                        ui.payButton.setForeground(Color.white);
+                        GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+                    }
+                } else if (spaceData.currentSpaceType == "Utility") {
+                    if (currentPlayer.money 
+                        >= spaceData.currentUtility.currentMultiplier * dice.result) {
+                        currentPlayer.money 
+                            -= spaceData.currentUtility.currentMultiplier * dice.result;
+                        spaceData.currentUtility.owner.money 
+                            += spaceData.currentUtility.currentMultiplier * dice.result;
+                        ui.managerButton.setForeground(Color.white);
+                        ui.nextTurnButton.setForeground(Color.white);
+                        ui.payButton.setForeground(Color.white);
+                        GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+                    }
+                } else if (spaceData.currentSpaceType == "Tax") {
+                    if (currentPlayer.money >= spaceData.currentTaxSpace.fee) {
+                        currentPlayer.money -= spaceData.currentTaxSpace.fee;
+                        ui.managerButton.setForeground(Color.white);
+                        ui.nextTurnButton.setForeground(Color.white);
+                        ui.payButton.setForeground(Color.white);
+                        GameStates.currentGameState = GameStates.NEXT_TURN_STATE;
+                    }
+                }
+            } else if (currentLabel == ui.jailRollButton) {
+                dice.getDiceResult();
+                currentPlayer.spacesLeftToMove = dice.result;
+                ui.managerButton.setForeground(new Color(255, 255, 255, 75));
+                ui.jailRollButton.setForeground(Color.white);
+                ui.jailRollButton.setVisible(false);
+                ui.jailPayBailButton.setVisible(false);
+                ui.jailUseCardButton.setVisible(false);
+                GameStates.currentGameState = GameStates.DICE_DELAY_STATE;
+            } else if (currentLabel == ui.jailPayBailButton) {
+                if (currentPlayer.money >= Settings.JAIL_BAIL) {
+                    currentPlayer.isInJail = false;
+                    currentPlayer.turnsInJail = 0;
+                    currentPlayer.money -= Settings.JAIL_BAIL;
+                    currentPlayer.coordinates = 
+                        spaceData.getSpaceCoordinates(currentPlayer.currentSpaceNumber, 
+                                                      currentPlayer.coordinateOffset);
+                    currentPlayer.xcoordinate = currentPlayer.coordinates[0];
+                    currentPlayer.ycoordinate = currentPlayer.coordinates[1];
+                    ui.jailPayBailButton.setForeground(Color.white);
+                    ui.rollButton.setForeground(Color.white);
+                    ui.managerButton.setForeground(Color.white);
+                    ui.jailRollButton.setVisible(false);
+                    ui.jailPayBailButton.setVisible(false);
+                    ui.jailUseCardButton.setVisible(false);
+                    GameStates.currentGameState = GameStates.ROLL_STATE;
+                }
             }
         } else if (GameStates.currentGameState == GameStates.NEXT_TURN_STATE) {
-            if (currentLabel == ui.nextTurnButton) {
-                gamePanel.changePlayerNumber();
-                ui.rollButton.setForeground(Color.white);
-                ui.nextTurnButton.setForeground(new Color(255, 255, 255, 75));
-                GameStates.currentGameState = GameStates.ROLL_STATE;
+            currentPlayer = players.get(gamePanel.currentPlayerNumber - 1);
+
+            if (currentLabel == ui.managerButton) {
+                ui.managerButton.setForeground(Color.white);
+                GameStates.previousGameState = GameStates.currentGameState;
+                GameStates.currentGameState = GameStates.MANAGER_MENU_STATE;
+            } else if (currentLabel == ui.nextTurnButton) {
+                if (dice.doubles == false || currentPlayer.isInJail == true) {
+                    currentPlayer.doublesStreak = 0;
+                    gamePanel.changePlayerNumber();
+                }
+
+                dice.result = 0;
+                dice.doubles = false;
+
+                if (players.get(gamePanel.currentPlayerNumber - 1).isInJail == true) {
+                    players.get(gamePanel.currentPlayerNumber - 1).turnsInJail++;
+                    ui.rollButton.setForeground(new Color(255, 255, 255, 75));
+                    ui.managerButton.setForeground(Color.white);
+                    ui.nextTurnButton.setForeground(new Color(255, 255, 255, 75));
+                    if (currentPlayer.money >= Settings.JAIL_BAIL) {
+                        ui.jailPayBailButton.setForeground(Color.white);
+                    } else {
+                        ui.jailPayBailButton.setForeground(new Color(255, 255, 255, 75));
+                    }
+                    GameStates.currentGameState = GameStates.SPACE_EVENT_STATE;
+                } else {
+                    ui.rollButton.setForeground(Color.white);
+                    ui.nextTurnButton.setForeground(new Color(255, 255, 255, 75));
+                    GameStates.currentGameState = GameStates.ROLL_STATE;
+                }
+            }
+        } else if (GameStates.currentGameState == GameStates.MANAGER_MENU_STATE) {
+            if (currentLabel == ui.managerTradingButton) {
+                ui.managerTradingButton.setForeground(Color.white);
+                GameStates.currentGameState = GameStates.TRADING_PLAYER_SELECT_STATE;
+            } else if (currentLabel == ui.managerBackButton) {
+                ui.managerBackButton.setForeground(Color.white);
+                GameStates.currentGameState = GameStates.previousGameState;
+            }
+        } else if (GameStates.currentGameState == GameStates.TRADING_PLAYER_SELECT_STATE) {
+            if (currentLabel == ui.managerBackButton) {
+                ui.managerBackButton.setForeground(Color.white);
+                GameStates.currentGameState = GameStates.MANAGER_MENU_STATE;
             }
         }
     }
@@ -377,40 +524,83 @@ public class MouseHandler implements MouseListener {
                     }
                 }
             } else if (GameStates.currentGameState == GameStates.ROLL_STATE) {
+                currentPlayer = players.get(gamePanel.currentPlayerNumber - 1);
                 if (currentLabel == ui.rollButton) {
                     currentLabel.setForeground(new Color(153, 235, 255));
                 } else if (currentLabel == ui.managerButton) {
                     currentLabel.setForeground(new Color(153, 235, 255));
                 }
             } else if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE) {
+                currentPlayer = players.get(gamePanel.currentPlayerNumber - 1);
                 if (currentLabel == ui.managerButton) {
                     currentLabel.setForeground(new Color(153, 235, 255));
                 } else if (currentLabel == ui.okButton) {
                     currentLabel.setForeground(new Color(153, 235, 255));
                 } else if (currentLabel == ui.buyOptionText) {
                     if (spaceData.currentSpaceType == "Normal Property") {
-                        if (gamePanel.players.get(gamePanel.currentPlayerNumber - 1).money 
-                            >= spaceData.currentNormalProperty.price) {
+                        if (currentPlayer.money >= spaceData.currentNormalProperty.price) {
                             currentLabel.setForeground(new Color(153, 235, 255));
                         }
                     } else if (spaceData.currentSpaceType == "Railroad") {
-                        if (gamePanel.players.get(gamePanel.currentPlayerNumber - 1).money 
-                            >= spaceData.currentRailroad.price) {
+                        if (currentPlayer.money >= spaceData.currentRailroad.price) {
                             currentLabel.setForeground(new Color(153, 235, 255));
                         }
                     } else if (spaceData.currentSpaceType == "Utility") {
-                        if (gamePanel.players.get(gamePanel.currentPlayerNumber - 1).money 
-                            >= spaceData.currentUtility.price) {
+                        if (currentPlayer.money >= spaceData.currentUtility.price) {
                             currentLabel.setForeground(new Color(153, 235, 255));
                         }
                     }
                 } else if (currentLabel == ui.passOptionText) {
                     currentLabel.setForeground(new Color(153, 235, 255));
+                } else if (currentLabel == ui.payButton) {
+                    if (spaceData.currentSpaceType == "Normal Property") {
+                        if (currentPlayer.money >= spaceData.currentNormalProperty.currentRent) {
+                            currentLabel.setForeground(new Color(153, 235, 255));
+                        }
+                    } else if (spaceData.currentSpaceType == "Railroad") {
+                        if (currentPlayer.money >= spaceData.currentRailroad.currentRent) {
+                            currentLabel.setForeground(new Color(153, 235, 255));
+                        }
+                    } else if (spaceData.currentSpaceType == "Utility") {
+                        if (currentPlayer.money 
+                            >= spaceData.currentUtility.currentMultiplier * dice.result) {
+                            currentLabel.setForeground(new Color(153, 235, 255));
+                        }
+                    } else if (spaceData.currentSpaceType == "Tax") {
+                        if (gamePanel.currentPlayer.money >= spaceData.currentTaxSpace.fee) {
+                            currentLabel.setForeground(new Color(153, 235, 255));
+                        }
+                    }
+                } else if (currentLabel == ui.jailRollButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                } else if (currentLabel == ui.jailPayBailButton) {
+                    if (currentPlayer.money >= Settings.JAIL_BAIL) {
+                        currentLabel.setForeground(new Color(153, 235, 255));
+                    }
+                } else if (currentLabel == ui.jailUseCardButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
                 }
             } else if (GameStates.currentGameState == GameStates.NEXT_TURN_STATE) {
+                currentPlayer = players.get(gamePanel.currentPlayerNumber - 1);
                 if (currentLabel == ui.managerButton) {
                     currentLabel.setForeground(new Color(153, 235, 255));
                 } else if (currentLabel == ui.nextTurnButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                }
+            } else if (GameStates.currentGameState == GameStates.MANAGER_MENU_STATE) {
+                if (currentLabel == ui.managerMortgagingButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                } else if (currentLabel == ui.managerTradingButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                } else if (currentLabel == ui.managerBuildingButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                } else if (currentLabel == ui.managerBankruptcyButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                } else if (currentLabel == ui.managerBackButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                }
+            } else if (GameStates.currentGameState == GameStates.TRADING_PLAYER_SELECT_STATE) {
+                if (currentLabel == ui.managerBackButton) {
                     currentLabel.setForeground(new Color(153, 235, 255));
                 }
             }
@@ -463,40 +653,83 @@ public class MouseHandler implements MouseListener {
                     }
                 }
             } else if (GameStates.currentGameState == GameStates.ROLL_STATE) {
+                currentPlayer = players.get(gamePanel.currentPlayerNumber - 1);
                 if (currentLabel == ui.rollButton) {
                     currentLabel.setForeground(Color.white);
                 } else if (currentLabel == ui.managerButton) {
                     currentLabel.setForeground(Color.white);
                 }
             } else if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE) {
+                currentPlayer = players.get(gamePanel.currentPlayerNumber - 1);
                 if (currentLabel == ui.managerButton) {
                     currentLabel.setForeground(Color.white);
                 } else if (currentLabel == ui.okButton) {
                     currentLabel.setForeground(Color.white);
                 } else if (currentLabel == ui.buyOptionText) {
                     if (spaceData.currentSpaceType == "Normal Property") {
-                        if (gamePanel.players.get(gamePanel.currentPlayerNumber - 1).money 
-                            >= spaceData.currentNormalProperty.price) {
+                        if (currentPlayer.money >= spaceData.currentNormalProperty.price) {
                             currentLabel.setForeground(Color.white);
                         }
                     } else if (spaceData.currentSpaceType == "Railroad") {
-                        if (gamePanel.players.get(gamePanel.currentPlayerNumber - 1).money 
-                            >= spaceData.currentRailroad.price) {
+                        if (currentPlayer.money >= spaceData.currentRailroad.price) {
                             currentLabel.setForeground(Color.white);
                         }
                     } else if (spaceData.currentSpaceType == "Utility") {
-                        if (gamePanel.players.get(gamePanel.currentPlayerNumber - 1).money 
-                            >= spaceData.currentUtility.price) {
+                        if (currentPlayer.money >= spaceData.currentUtility.price) {
                             currentLabel.setForeground(Color.white);
                         }
                     }
                 } else if (currentLabel == ui.passOptionText) {
                     currentLabel.setForeground(Color.white);
+                } else if (currentLabel == ui.payButton) {
+                    if (spaceData.currentSpaceType == "Normal Property") {
+                        if (currentPlayer.money >= spaceData.currentNormalProperty.currentRent) {
+                            currentLabel.setForeground(Color.white);
+                        }
+                    } else if (spaceData.currentSpaceType == "Railroad") {
+                        if (currentPlayer.money >= spaceData.currentRailroad.currentRent) {
+                            currentLabel.setForeground(Color.white);
+                        }
+                    } else if (spaceData.currentSpaceType == "Utility") {
+                        if (currentPlayer.money 
+                            >= spaceData.currentUtility.currentMultiplier * dice.result) {
+                            currentLabel.setForeground(Color.white);
+                        }
+                    } else if (spaceData.currentSpaceType == "Tax") {
+                        if (gamePanel.currentPlayer.money >= spaceData.currentTaxSpace.fee) {
+                            currentLabel.setForeground(Color.white);
+                        }
+                    }
+                } else if (currentLabel == ui.jailRollButton) {
+                    currentLabel.setForeground(Color.white);
+                } else if (currentLabel == ui.jailPayBailButton) {
+                    if (currentPlayer.money >= Settings.JAIL_BAIL) {
+                        currentLabel.setForeground(Color.white);
+                    }
+                } else if (currentLabel == ui.jailUseCardButton) {
+                    currentLabel.setForeground(Color.white);
                 }
             } else if (GameStates.currentGameState == GameStates.NEXT_TURN_STATE) {
+                currentPlayer = players.get(gamePanel.currentPlayerNumber - 1);
                 if (currentLabel == ui.managerButton) {
                     currentLabel.setForeground(Color.white);
                 } else if (currentLabel == ui.nextTurnButton) {
+                    currentLabel.setForeground(Color.white);
+                }
+            } else if (GameStates.currentGameState == GameStates.MANAGER_MENU_STATE) {
+                if (currentLabel == ui.managerMortgagingButton) {
+                    currentLabel.setForeground(Color.white);
+                } else if (currentLabel == ui.managerTradingButton) {
+                    currentLabel.setForeground(Color.white);
+                } else if (currentLabel == ui.managerBuildingButton) {
+                    currentLabel.setForeground(Color.white);
+                } else if (currentLabel == ui.managerBankruptcyButton) {
+                    currentLabel.setForeground(Color.white);
+                } else if (currentLabel == ui.managerBackButton) {
+                    currentLabel.setForeground(Color.white);
+                }
+            } else if (GameStates.currentGameState == GameStates.TRADING_PLAYER_SELECT_STATE) {
+                if (currentLabel == ui.managerBackButton) {
                     currentLabel.setForeground(Color.white);
                 }
             }

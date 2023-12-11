@@ -80,6 +80,15 @@ public class Ui {
     public JLabel okButton;
     public JLabel buyOptionText;
     public JLabel passOptionText;
+    public JLabel payButton;
+    public JLabel jailRollButton;
+    public JLabel jailPayBailButton;
+    public JLabel jailUseCardButton;
+    public JLabel managerMortgagingButton;
+    public JLabel managerTradingButton;
+    public JLabel managerBuildingButton;
+    public JLabel managerBankruptcyButton;
+    public JLabel managerBackButton;
 
     public int playerAmount;
     public int profileNameSeperator;
@@ -160,6 +169,7 @@ public class Ui {
         hoveredRemovePlayerButton = -1;
 
         createMainGameUi();
+        createManagerUi();
     }
 
     /**
@@ -415,19 +425,69 @@ public class Ui {
                           621, 41, 100, 30);
         nextTurnButton.setVisible(false);
 
-        buyOptionText = new JLabel();
-        createButtonLabel(buyOptionText, "Buy", fonts.pixeloidSans, Color.white, 18, 
-                          350, 425, 100, 50);
-        buyOptionText.setVisible(false);
-
         okButton = new JLabel();
         createButtonLabel(okButton, "Ok", fonts.pixeloidSans, Color.white, 16, 350, 450, 100, 50);
         okButton.setVisible(false);
 
+        buyOptionText = new JLabel();
+        createButtonLabel(buyOptionText, "Buy", fonts.pixeloidSans, Color.white, 16, 
+                          300, 525, 100, 50);
+        buyOptionText.setVisible(false);
+
         passOptionText = new JLabel();
-        createButtonLabel(passOptionText, "Pass", fonts.pixeloidSans, Color.white, 18, 
-                          350, 450, 100, 50);
+        createButtonLabel(passOptionText, "Pass", fonts.pixeloidSans, Color.white, 16, 
+                          400, 525, 100, 50);
         passOptionText.setVisible(false);
+
+        payButton = new JLabel();
+        createButtonLabel(payButton, "Pay", fonts.pixeloidSans, Color.white, 16, 
+                          350, 450, 100, 50);
+        payButton.setVisible(false);
+
+        jailRollButton = new JLabel();
+        createButtonLabel(jailRollButton, "Roll", fonts.pixeloidSans, Color.white, 16, 
+                          350, 450, 100, 50);
+        jailRollButton.setVisible(false);
+
+        jailPayBailButton = new JLabel();
+        createButtonLabel(jailPayBailButton, "Pay Bail", fonts.pixeloidSans, Color.white, 16, 
+                          350, 475, 100, 50);
+        jailPayBailButton.setVisible(false);
+
+        jailUseCardButton = new JLabel();
+        createButtonLabel(jailUseCardButton, "Use Card", fonts.pixeloidSans, Color.white, 16, 
+                          350, 500, 100, 50);
+        jailUseCardButton.setVisible(false);
+    }
+
+    /**
+    * Creates the interactable components for the player manager screen.
+    */
+    public void createManagerUi() {
+        managerMortgagingButton = new JLabel();
+        createButtonLabel(managerMortgagingButton, "Mortgage/Unmortgage", 
+                          fonts.pixeloidSans, Color.white, 22, 100, 125, 500, 100);
+        managerMortgagingButton.setVisible(false);
+
+        managerTradingButton = new JLabel();
+        createButtonLabel(managerTradingButton, "Trading", 
+                          fonts.pixeloidSans, Color.white, 22, 100, 275, 500, 100);
+        managerTradingButton.setVisible(false);
+
+        managerBuildingButton = new JLabel();
+        createButtonLabel(managerBuildingButton, "Build/Sell", 
+                          fonts.pixeloidSans, Color.white, 22, 100, 425, 500, 100);
+        managerBuildingButton.setVisible(false);
+
+        managerBankruptcyButton = new JLabel();
+        createButtonLabel(managerBankruptcyButton, "Declare Bankruptcy", 
+                          fonts.pixeloidSans, Color.white, 22, 100, 575, 500, 100);
+        managerBankruptcyButton.setVisible(false);
+ 
+        managerBackButton = new JLabel();
+        createButtonLabel(managerBackButton, "Back", 
+                          fonts.pixeloidSans, Color.white, 16, 20, 750, 100, 30);
+        managerBackButton.setVisible(false);      
     }
 
     /**
@@ -753,6 +813,25 @@ public class Ui {
             menuBackButton.setVisible(false);
             setUpScreenCreateProfileButton.setVisible(false);
             startGameButton.setVisible(false);
+            managerMortgagingButton.setVisible(false);
+            managerTradingButton.setVisible(false);
+            managerBuildingButton.setVisible(false);
+            managerBankruptcyButton.setVisible(false);
+            managerBackButton.setVisible(false);
+
+            // Roll button.
+            g2d.drawImage(rollButtonImage, 79, 41, null);
+            rollButton.setVisible(true);
+
+            // Manager button.
+            g2d.drawImage(playerManagerButtonImage, 350, 41, null);
+            managerButton.setVisible(true);
+
+            // Next turn button.
+            g2d.drawImage(nextTurnButtonImage, 621, 41, null);
+            nextTurnButton.setVisible(true);
+        } else if (GameStates.currentGameState == GameStates.DICE_DELAY_STATE) {
+            okButton.setVisible(false);
 
             // Roll button.
             g2d.drawImage(rollButtonImage, 79, 41, null);
@@ -781,6 +860,13 @@ public class Ui {
             g2d.drawImage(nextTurnButtonImage, 621, 41, null);
             nextTurnButton.setVisible(true);
         } else if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE) {
+            okButton.setVisible(false);
+            managerMortgagingButton.setVisible(false);
+            managerTradingButton.setVisible(false);
+            managerBuildingButton.setVisible(false);
+            managerBankruptcyButton.setVisible(false);
+            managerBackButton.setVisible(false);
+
             // Roll button.
             g2d.drawImage(rollButtonImage, 79, 41, null);
             rollButton.setVisible(true);
@@ -793,13 +879,29 @@ public class Ui {
             g2d.drawImage(nextTurnButtonImage, 621, 41, null);
             nextTurnButton.setVisible(true);
 
-            if (spaceData.currentSpaceType == "Go") {
+            if (players.get(gamePanel.currentPlayerNumber - 1).doublesStreak >= 3) {
+                okButton.setVisible(true);
+            } else if (spaceData.currentSpaceType == "Go") {
                 // Ok button
                 okButton.setVisible(true);
                 // HelperFunctions.drawText(g2d, "Ok", new Color(153, 235, 255), 16, 350, 475, 
                 //                          100, 30, true, true);
             } else if (spaceData.currentSpaceType == "Jail") {
-                okButton.setVisible(true);
+                if (players.get(gamePanel.currentPlayerNumber - 1).isInJail == true) {
+                    if (dice.result == 0) {
+                        jailRollButton.setVisible(true);
+                        jailPayBailButton.setBounds(350, 475, 100, 50);
+                        jailPayBailButton.setVisible(true);
+                        // jailUseCardButton.setVisible(true);
+                    } else if (players.get(gamePanel.currentPlayerNumber - 1).turnsInJail >= 3) {
+                        jailPayBailButton.setBounds(350, 450, 100, 50);
+                        jailPayBailButton.setVisible(true);
+                    } else {
+                        okButton.setVisible(true);
+                    }
+                } else {
+                    okButton.setVisible(true);
+                }
             } else if (spaceData.currentSpaceType == "Free Parking") {
                 okButton.setVisible(true);
             } else if (spaceData.currentSpaceType == "Go To Jail") {
@@ -813,7 +915,16 @@ public class Ui {
                                               < spaceData.currentNormalProperty.price) {
                         buyOptionText.setForeground(new Color(255, 255, 255, 75));
                     }
+                } else if (spaceData.currentNormalProperty.owner != gamePanel.currentPlayer) {
+                    payButton.setVisible(true);
+
+                    if (players.get(gamePanel.currentPlayerNumber - 1).money 
+                        < spaceData.currentNormalProperty.currentRent) {
+                        payButton.setForeground(new Color(255, 255, 255, 75));
+                    }
                 } else {
+                    buyOptionText.setVisible(false);
+                    passOptionText.setVisible(false);
                     okButton.setVisible(true);
                 }
             } else if (spaceData.currentSpaceType == "Railroad") {
@@ -824,6 +935,13 @@ public class Ui {
                     if (gamePanel.players.get(gamePanel.currentPlayerNumber - 1).money 
                                               < spaceData.currentRailroad.price) {
                         buyOptionText.setForeground(new Color(255, 255, 255, 75));
+                    }
+                } else if (spaceData.currentRailroad.owner != gamePanel.currentPlayer) {
+                    payButton.setVisible(true);
+
+                    if (players.get(gamePanel.currentPlayerNumber - 1).money 
+                        < spaceData.currentRailroad.currentRent) {
+                        payButton.setForeground(new Color(255, 255, 255, 75));
                     }
                 } else {
                     okButton.setVisible(true);
@@ -837,16 +955,33 @@ public class Ui {
                                               < spaceData.currentUtility.price) {
                         buyOptionText.setForeground(new Color(255, 255, 255, 75));
                     }
+                } else if (spaceData.currentUtility.owner != gamePanel.currentPlayer) {
+                    payButton.setVisible(true);
+
+                    if (players.get(gamePanel.currentPlayerNumber - 1).money 
+                        < spaceData.currentUtility.currentMultiplier * dice.result) {
+                        payButton.setForeground(new Color(255, 255, 255, 75));
+                    }
                 } else {
                     okButton.setVisible(true);
                 }
             } else if (spaceData.currentSpaceType == "Card") {
                 okButton.setVisible(true);
             } else if (spaceData.currentSpaceType == "Tax") {
-                okButton.setVisible(true);
+                payButton.setVisible(true);
+
+                if (gamePanel.currentPlayer.money < spaceData.currentTaxSpace.fee) {
+                    payButton.setForeground(new Color(255, 255, 255, 75));
+                }
             }
         } else if (GameStates.currentGameState == GameStates.NEXT_TURN_STATE) {
             okButton.setVisible(false);
+            payButton.setVisible(false);
+            managerMortgagingButton.setVisible(false);
+            managerTradingButton.setVisible(false);
+            managerBuildingButton.setVisible(false);
+            managerBankruptcyButton.setVisible(false);
+            managerBackButton.setVisible(false);
             
             // Roll button.
             g2d.drawImage(rollButtonImage, 79, 41, null);
@@ -859,6 +994,34 @@ public class Ui {
             // Next turn button.
             g2d.drawImage(nextTurnButtonImage, 621, 41, null);
             nextTurnButton.setVisible(true);
+        } else if (GameStates.currentGameState == GameStates.MANAGER_MENU_STATE) {
+            rollButton.setVisible(false);
+            managerButton.setVisible(false);
+            nextTurnButton.setVisible(false);
+            okButton.setVisible(false);
+            buyOptionText.setVisible(false);
+            passOptionText.setVisible(false);
+            payButton.setVisible(false);
+
+            // Mortgaging/Unmortgaging button.
+            managerMortgagingButton.setVisible(true);
+
+            // Trading button.
+            managerTradingButton.setVisible(true);
+
+            // Building/selling button.
+            managerBuildingButton.setVisible(true);
+
+            // Declare bankruptcy button.
+            managerBankruptcyButton.setVisible(true);
+
+            // Back button.
+            managerBackButton.setVisible(true);
+        } else if (GameStates.currentGameState == GameStates.TRADING_PLAYER_SELECT_STATE) {
+            managerMortgagingButton.setVisible(false);
+            managerTradingButton.setVisible(false);
+            managerBuildingButton.setVisible(false);
+            managerBankruptcyButton.setVisible(false);
         }
     }
 }

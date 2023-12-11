@@ -8,14 +8,16 @@ import src.game.Player;
 public class RailroadProperty extends Space {
     public String group;
     public int price;
-    public int rent;
+    public int[] groupRent;
+    public int currentRent;
 
     public Player owner;
 
     /**
     * Constructor.
     */
-    public RailroadProperty(int x, int y, int spaceNumber, String name, int price, int rent) {
+    public RailroadProperty(int x, int y, int spaceNumber, String name, int price, 
+                            int[] groupRent) {
         super.xcoordinate = x;
         super.ycoordinate = y;        
         super.spaceNumber = spaceNumber;
@@ -24,6 +26,8 @@ public class RailroadProperty extends Space {
 
         this.group = "Railroad";
         this.price = price;
-        this.rent = rent;
+        this.groupRent = groupRent;
+        
+        currentRent = groupRent[0];
     }
 }

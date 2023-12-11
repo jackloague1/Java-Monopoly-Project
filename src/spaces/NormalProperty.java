@@ -8,9 +8,11 @@ import src.game.Player;
 public class NormalProperty extends Space {
     public String group;
     public int price;
-    public int rent;
+    public int normalRent;
     public int buildingPrice;
-    public int[] buildingRentPrices;
+    public int[] buildingRent;
+    public int currentRent;
+    public int buildingAmount;
 
     public Player owner;
 
@@ -18,7 +20,7 @@ public class NormalProperty extends Space {
     * Constructor.
     */
     public NormalProperty(int x, int y, int spaceNumber, String name, String group, 
-                          int price, int rent, int buildingPrice, int[] buildingRentPrices) {
+                          int price, int normalRent, int buildingPrice, int[] buildingRent) {
         super.xcoordinate = x;
         super.ycoordinate = y;
         super.spaceNumber = spaceNumber;
@@ -27,8 +29,32 @@ public class NormalProperty extends Space {
 
         this.group = group;
         this.price = price;
-        this.rent = rent;
+        this.normalRent = normalRent;
         this.buildingPrice = buildingPrice;
-        this.buildingRentPrices = buildingRentPrices;
+        this.buildingRent = buildingRent;
+
+        currentRent = normalRent;
+        buildingAmount = 0;
     }
+
+    /**
+    * Checks if a single player owns all other properties of the same group as this one.
+    */
+    // public void checkIfMonopoly() {
+    //     for (int i = 0; i < spaceData.normalProperties.size; i++) {
+            
+    //     }
+    // }
+
+    
+    /**
+    * Returns the current rent of the property.
+    */
+    // public int getRent() {
+    //     int rent = 0;
+
+
+
+    //     return rent;
+    // }
 }

@@ -1,5 +1,6 @@
 package src.game;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -11,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import javax.swing.JPanel;
+import src.data.CardData;
 import src.data.Fonts;
 import src.data.GameStates;
 import src.data.Settings;
@@ -28,6 +30,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public Fonts fonts;
     public SpaceData spaceData; 
+    public CardData cardData;
     public MainMenu mainMenu;
     public Board board;
     public SaveLoad saveLoad;
@@ -36,9 +39,12 @@ public class GamePanel extends JPanel implements Runnable {
     public ArrayList<Player> players;
     public PlayerInfoBox playerInfoBox;
     public Ui ui;
+    public PlayerManager playerManager;
     public SpaceEvent spaceEvent;
 
     private Thread gameThread;
+
+    public Player currentPlayer;
 
     public double drawInterval;
     public double delta;
@@ -64,11 +70,11 @@ public class GamePanel extends JPanel implements Runnable {
         profilesFile = new File("src/saved-data/Profiles.txt");
 
         fonts = new Fonts();
-        spaceData = new SpaceData(); 
+        spaceData = new SpaceData();
+        cardData = new CardData();
         mainMenu = new MainMenu();
         board = new Board();
         saveLoad = new SaveLoad();
-        dice = new Dice(this);
 
         if (profilesFile.isFile()) {
             try {
@@ -81,9 +87,12 @@ public class GamePanel extends JPanel implements Runnable {
             profiles = new ArrayList<Profile>();
         }
         players = new ArrayList<Player>();
+        dice = new Dice(this, players);
         playerInfoBox = new PlayerInfoBox(this, fonts);
         ui = new Ui(this, fonts, spaceData, saveLoad, dice, profiles, players);
-        spaceEvent = new SpaceEvent(this, fonts, ui, players, spaceData);
+        playerManager = new PlayerManager(this, fonts, spaceData, saveLoad, dice, profiles, 
+                                          players);
+        spaceEvent = new SpaceEvent(this, fonts, ui, dice, players, spaceData);
 
         // Calculates amount of nanoseconds in a second divided by FPS.
         drawInterval = 1000000000 / fps;
@@ -101,7 +110,7 @@ public class GamePanel extends JPanel implements Runnable {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.blue);
         this.setDoubleBuffered(true);
-        this.setLayout(null);
+        this.setLayout(new BorderLayout());
         this.addKeyListener(ui.keyHandler);
         this.setFocusable(true);
 
@@ -137,8 +146,18 @@ public class GamePanel extends JPanel implements Runnable {
         while (gameThread != null) {
             currentTime = System.nanoTime();
             delta += (currentTime - lastTime) / drawInterval;
-            playerDelta += (currentTime - lastTime) / drawInterval;
-            diceDelta += (currentTime - lastTime) / drawInterval;
+
+            if (GameStates.currentGameState == GameStates.PLAYER_MOVE_STATE) {
+                playerDelta += (currentTime - lastTime) / drawInterval;
+            } else {
+                playerDelta = 0;
+            }
+            if (GameStates.currentGameState == GameStates.DICE_DELAY_STATE) {
+                diceDelta += (currentTime - lastTime) / drawInterval;
+            } else {
+                diceDelta = 0;
+            }
+
             timer += (currentTime - lastTime);
             lastTime = currentTime;
 
@@ -156,8 +175,8 @@ public class GamePanel extends JPanel implements Runnable {
                     playerDelta -= Settings.PLAYER_MOVE_SPEED;
                 }
 
-                if (diceDelta >= Settings.DICE_MOVE_SPEED) {
-                    diceDelta -= Settings.DICE_MOVE_SPEED;
+                if (diceDelta >= Settings.DICE_DELAY) {
+                    diceDelta -= Settings.DICE_DELAY;
                 }
             }     
             
@@ -235,10 +254,19 @@ public class GamePanel extends JPanel implements Runnable {
             Player player = new Player(this, spaceData, ui, dice, i + 1, 
                                        coordinateOffset, ui.selectedProfiles[i], ui.selectedTokens[i]);
             players.add(player);
-            coordinateOffset -= 10;
+            coordinateOffset -= 5;
         }  
+
+        // players.add(new Player(this, spaceData, ui, dice, 1, 10, "Test", ui.selectedTokens[0]));
+        
+        // players.add(new Player(this, spaceData, ui, dice, 2, 0, "Test1", ui.selectedTokens[1]));
+        
+        // players.add(new Player(this, spaceData, ui, dice, 3, -10, "Test2", ui.selectedTokens[2]));
+        
+        // players.add(new Player(this, spaceData, ui, dice, 4, -20, "Test3", ui.selectedTokens[3]));
         
         currentPlayerNumber = 1;
+        currentPlayer = players.get(currentPlayerNumber - 1);
         playerInfoBox.setCurrentPlayer();
     }
 
@@ -252,7 +280,31 @@ public class GamePanel extends JPanel implements Runnable {
             currentPlayerNumber = 1;
         }
 
+        currentPlayer = players.get(currentPlayerNumber - 1);
+
         playerInfoBox.setCurrentPlayer();
+    }
+
+    /**
+    * Draws the players on screen, with the order of which player is drawn based on whose turn it
+    * currently is.
+    */
+    public void drawPlayers(Graphics2D g2d) {
+        for (int i = 0; i < players.size(); i++) {
+            players.get(i).draw(g2d);
+        }
+        // int playerIndex = -1;
+
+        // for (int i = 0; i < players.size(); i++) {
+        //     if (currentPlayerNumber - 1 + playerIndex > -1) {
+        //         players.get(currentPlayerNumber - 1 + playerIndex).draw(g2d);
+        //         playerIndex--;
+        //     } else {
+        //         playerIndex = players.size() - 1;
+        //         players.get(playerIndex).draw(g2d);
+        //         playerIndex -= (players.size() - 1);
+        //     }
+        // }
     }
 
     /**
@@ -261,6 +313,8 @@ public class GamePanel extends JPanel implements Runnable {
     public void update() {
         if (GameStates.currentGameState == GameStates.TITLE_SCREEN_STATE) {
         } else if (GameStates.currentGameState == GameStates.ROLL_STATE) {
+        } else if (GameStates.currentGameState == GameStates.DICE_DELAY_STATE) {
+            dice.delay();
         } else if (GameStates.currentGameState == GameStates.PLAYER_MOVE_STATE) {
             players.get(currentPlayerNumber - 1).move();
         } else if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE) {
@@ -306,18 +360,24 @@ public class GamePanel extends JPanel implements Runnable {
             board.draw(g2d);
             ui.draw(g2d);
 
-            for (int i = 0; i < players.size(); i++) {
-                players.get(i).draw(g2d);
-            }
+            drawPlayers(g2d);
 
             playerInfoBox.draw(g2d);
+        } else if (GameStates.currentGameState == GameStates.DICE_DELAY_STATE) {
+            board.draw(g2d);
+            ui.draw(g2d);
+
+            drawPlayers(g2d);
+            playerInfoBox.draw(g2d);
+            dice.draw(g2d);
         } else if (GameStates.currentGameState == GameStates.PLAYER_MOVE_STATE) {
             board.draw(g2d);
             ui.draw(g2d);
 
-            for (int i = 0; i < players.size(); i++) {
-                players.get(i).draw(g2d);
-            }
+            drawPlayers(g2d);
+            // for (int i = 0; i < players.size(); i++) {
+            //     players.get(i).draw(g2d);
+            // }
 
             playerInfoBox.draw(g2d);
             dice.draw(g2d);
@@ -325,23 +385,34 @@ public class GamePanel extends JPanel implements Runnable {
             board.draw(g2d);
             ui.draw(g2d);
 
-            for (int i = 0; i < players.size(); i++) {
-                players.get(i).draw(g2d);
-            }
+            drawPlayers(g2d);
+            // for (int i = 0; i < players.size(); i++) {
+            //     players.get(i).draw(g2d);
+            // }
 
             playerInfoBox.draw(g2d);
-            dice.draw(g2d);
+
+            if (dice.result != 0) {
+                dice.draw(g2d);
+            }
+
             spaceEvent.draw(g2d);
         } else if (GameStates.currentGameState == GameStates.NEXT_TURN_STATE) {
             board.draw(g2d);
             ui.draw(g2d);
 
-            for (int i = 0; i < players.size(); i++) {
-                players.get(i).draw(g2d);
-            }
+            drawPlayers(g2d);
+            // for (int i = 0; i < players.size(); i++) {
+            //     players.get(i).draw(g2d);
+            // }
 
             playerInfoBox.draw(g2d);
-            dice.draw(g2d);
+        } else if (GameStates.currentGameState == GameStates.MANAGER_MENU_STATE) {
+            playerManager.draw(g2d);
+            ui.draw(g2d);
+        } else if (GameStates.currentGameState == GameStates.TRADING_PLAYER_SELECT_STATE) {
+            playerManager.draw(g2d);
+            ui.draw(g2d);
         }
     }
 }

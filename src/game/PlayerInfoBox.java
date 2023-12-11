@@ -31,7 +31,7 @@ public class PlayerInfoBox {
     * Sets the current player based on the current player number in GamePanel.
     */
     public void setCurrentPlayer() {
-        currentPlayer = gamePanel.players.get(gamePanel.currentPlayerNumber - 1);
+        currentPlayer = gamePanel.currentPlayer;
         System.out.print(currentPlayer.playerNumber);
     }
 

@@ -70,9 +70,10 @@ public class KeyHandler extends KeyAdapter {
         } else if (GameStates.currentGameState == GameStates.ROLL_STATE) {
             if (code == KeyEvent.VK_R) {
                 dice.getDiceResult();
+                gamePanel.currentPlayer.spacesLeftToMove = dice.result;
                 ui.rollButton.setForeground(new Color(255, 255, 255, 75));
                 ui.managerButton.setForeground(new Color(255, 255, 255, 75));
-                GameStates.currentGameState = GameStates.PLAYER_MOVE_STATE;
+                GameStates.currentGameState = GameStates.DICE_DELAY_STATE;
             }
         } else if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE) {
             if (spaceData.currentSpaceType == "Go") {
@@ -81,11 +82,33 @@ public class KeyHandler extends KeyAdapter {
                 }
             }
         } else if (GameStates.currentGameState == GameStates.NEXT_TURN_STATE) {
+            gamePanel.currentPlayer = players.get(gamePanel.currentPlayerNumber - 1);
+
             if (code == KeyEvent.VK_N) {
-                gamePanel.changePlayerNumber();
-                ui.rollButton.setForeground(Color.white);
-                ui.nextTurnButton.setForeground(new Color(255, 255, 255, 75));
-                GameStates.currentGameState = GameStates.ROLL_STATE;
+                if (dice.doubles == false || gamePanel.currentPlayer.isInJail == true) {
+                    gamePanel.currentPlayer.doublesStreak = 0;
+                    gamePanel.changePlayerNumber();
+                }
+
+                dice.result = 0;
+                dice.doubles = false;
+
+                if (players.get(gamePanel.currentPlayerNumber - 1).isInJail == true) {
+                    players.get(gamePanel.currentPlayerNumber - 1).turnsInJail++;
+                    ui.rollButton.setForeground(new Color(255, 255, 255, 75));
+                    ui.managerButton.setForeground(Color.white);
+                    ui.nextTurnButton.setForeground(new Color(255, 255, 255, 75));
+                    if (gamePanel.currentPlayer.money >= Settings.JAIL_BAIL) {
+                        ui.jailPayBailButton.setForeground(Color.white);
+                    } else {
+                        ui.jailPayBailButton.setForeground(new Color(255, 255, 255, 75));
+                    }
+                    GameStates.currentGameState = GameStates.SPACE_EVENT_STATE;
+                } else {
+                    ui.rollButton.setForeground(Color.white);
+                    ui.nextTurnButton.setForeground(new Color(255, 255, 255, 75));
+                    GameStates.currentGameState = GameStates.ROLL_STATE;
+                }
             }
         }
     }    
