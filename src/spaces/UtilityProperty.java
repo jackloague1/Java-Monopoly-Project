@@ -8,8 +8,11 @@ import src.game.Player;
 public class UtilityProperty extends Space {
     public String group;
     public int price;
+    public int mortgageValue;
+    public int unMortgageFee;
     public int[] rentMultiplier;
     public int currentMultiplier;
+    public boolean isMortgaged;
 
     public Player owner;
 
@@ -27,7 +30,12 @@ public class UtilityProperty extends Space {
         this.group = "Utility";
         this.price = price;
         this.rentMultiplier = rentMultiplier;
+
+        mortgageValue = price / 2;
+        unMortgageFee = Math.round(mortgageValue + (mortgageValue * 0.1f));
         
         currentMultiplier = rentMultiplier[0];
+
+        isMortgaged = false;
     }
 }

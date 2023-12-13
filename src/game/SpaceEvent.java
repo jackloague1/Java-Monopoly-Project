@@ -128,15 +128,62 @@ public class SpaceEvent {
     }
 
     /**
-    * Displays a message for a normal property letting the player know that they owe rent to 
+    * Displays a message for a property letting the player know that they owe rent to 
     * another player.
     */
-    public void normalPropertyPayRent(Graphics2D g2d) {
-        HelperFunctions.drawText(g2d, 
-                                 "You owe $" + spaceData.currentNormalProperty.currentRent 
-                                 + " to " + spaceData.currentNormalProperty.owner.name + ".",
+    public void propertyPayRent(Graphics2D g2d) {
+        if (spaceData.currentSpaceType == "Normal Property") {
+            HelperFunctions.drawText(g2d, spaceData.currentNormalProperty.name, 
+                                    fonts.pixeloidSans, Color.black, 22, 350, 315, 
+                                    100, 50, true, true);
+            HelperFunctions.drawText(g2d, 
+                                    "You owe $" + spaceData.currentNormalProperty.currentRent 
+                                    + " to " + spaceData.currentNormalProperty.owner.name + ".",
+                                    fonts.pixeloidSans, Color.black, 18, 350, 375, 
+                                    100, 50, true, true);
+        } else if (spaceData.currentSpaceType == "Railroad") {
+            HelperFunctions.drawText(g2d, spaceData.currentRailroad.name, 
+                                    fonts.pixeloidSans, Color.black, 22, 350, 315, 
+                                    100, 50, true, true);
+            HelperFunctions.drawText(g2d, 
+                                    "You owe $" + spaceData.currentRailroad.currentRent 
+                                    + " to " + spaceData.currentRailroad.owner.name + ".",
+                                    fonts.pixeloidSans, Color.black, 18, 350, 375, 
+                                    100, 50, true, true);
+        } else if (spaceData.currentSpaceType == "Utility") {
+            HelperFunctions.drawText(g2d, spaceData.currentUtility.name, 
+                                    fonts.pixeloidSans, Color.black, 22, 350, 315, 
+                                    100, 50, true, true);
+            HelperFunctions.drawText(g2d, 
+                                    "You owe $" + spaceData.currentUtility.currentMultiplier * dice.result
+                                    + " to " + spaceData.currentUtility.owner.name + ".",
+                                    fonts.pixeloidSans, Color.black, 18, 350, 375, 
+                                    100, 50, true, true);
+        }
+    }
+
+    /**
+    * Displays a message for a property letting the player know that it is mortgaged and that they
+    * do not have to pay rent.
+    */
+    public void propertyIsMortgaged(Graphics2D g2d) {
+        if (spaceData.currentSpaceType == "Normal Property") {
+            HelperFunctions.drawText(g2d, spaceData.currentNormalProperty.name, 
+                                    fonts.pixeloidSans, Color.black, 22, 350, 315, 
+                                    100, 50, true, true);
+        } else if (spaceData.currentSpaceType == "Railroad") {
+            HelperFunctions.drawText(g2d, spaceData.currentRailroad.name, 
+                                    fonts.pixeloidSans, Color.black, 22, 350, 315, 
+                                    100, 50, true, true);
+        } else if (spaceData.currentSpaceType == "Utility") {
+            HelperFunctions.drawText(g2d, spaceData.currentUtility.name, 
+                                    fonts.pixeloidSans, Color.black, 22, 350, 315, 
+                                    100, 50, true, true);
+        }
+
+        HelperFunctions.drawText(g2d, "This property is mortgaged. No rent is due!",
                                  fonts.pixeloidSans, Color.black, 18, 350, 375, 
-                                 100, 50, true, true);
+                                100, 50, true, true);
     }
 
     /**
@@ -144,11 +191,7 @@ public class SpaceEvent {
     * another player.
     */
     public void railroadPayRent(Graphics2D g2d) {
-        HelperFunctions.drawText(g2d, 
-                                 "You owe $" + spaceData.currentRailroad.currentRent 
-                                 + " to " + spaceData.currentRailroad.owner.name + ".",
-                                 fonts.pixeloidSans, Color.black, 18, 350, 375, 
-                                 100, 50, true, true);
+
     }
 
     /**
@@ -156,18 +199,27 @@ public class SpaceEvent {
     * another player.
     */
     public void utilityPayRent(Graphics2D g2d) {
-        System.out.print("Current dice result: " + dice.result);
-        HelperFunctions.drawText(g2d, 
-                                 "You owe $" + spaceData.currentUtility.currentMultiplier * dice.result
-                                 + " to " + spaceData.currentUtility.owner.name + ".",
-                                 fonts.pixeloidSans, Color.black, 18, 350, 375, 
-                                 100, 50, true, true);
+
     }
 
     /**
     * Displays a message for any property letting the player know that they own it.
     */
     public void ownedProperty(Graphics2D g2d) {
+        if (spaceData.currentSpaceType == "Normal Property") {
+            HelperFunctions.drawText(g2d, spaceData.currentNormalProperty.name, 
+                                    fonts.pixeloidSans, Color.black, 22, 350, 315, 
+                                    100, 50, true, true);
+        } else if (spaceData.currentSpaceType == "Railroad") {
+            HelperFunctions.drawText(g2d, spaceData.currentRailroad.name, 
+                                    fonts.pixeloidSans, Color.black, 22, 350, 315, 
+                                    100, 50, true, true);
+        } else if (spaceData.currentSpaceType == "Utility") {
+            HelperFunctions.drawText(g2d, spaceData.currentUtility.name, 
+                                    fonts.pixeloidSans, Color.black, 22, 350, 315, 
+                                    100, 50, true, true);
+        }
+        
         HelperFunctions.drawText(g2d, "You own this property.", fonts.pixeloidSans, Color.black, 
                                 18, 350, 375, 100, 50, true, true);
     }
@@ -253,7 +305,11 @@ public class SpaceEvent {
                 if (spaceData.currentNormalProperty.owner == null) {
                     displayNormalProperty(g2d);
                 } else if (spaceData.currentNormalProperty.owner != gamePanel.currentPlayer) {
-                    normalPropertyPayRent(g2d);
+                    if (spaceData.currentNormalProperty.isMortgaged == false) {
+                        propertyPayRent(g2d);
+                    } else {
+                        propertyIsMortgaged(g2d);
+                    }
                 } else {
                     ownedProperty(g2d);
                 }
@@ -263,7 +319,11 @@ public class SpaceEvent {
                 if (spaceData.currentRailroad.owner == null) {
                     displayRailroad(g2d);
                 } else if (spaceData.currentRailroad.owner != gamePanel.currentPlayer) {
-                    railroadPayRent(g2d);
+                    if (spaceData.currentRailroad.isMortgaged == false) {
+                        propertyPayRent(g2d);
+                    } else {
+                        propertyIsMortgaged(g2d);
+                    }
                 } else {
                     ownedProperty(g2d);
                 }
@@ -273,7 +333,11 @@ public class SpaceEvent {
                 if (spaceData.currentUtility.owner == null) {
                     displayUtility(g2d);
                 } else if (spaceData.currentUtility.owner != gamePanel.currentPlayer) {
-                    utilityPayRent(g2d);
+                    if (spaceData.currentUtility.isMortgaged == false) {
+                        propertyPayRent(g2d);
+                    } else {
+                        propertyIsMortgaged(g2d);
+                    }
                 } else {
                     ownedProperty(g2d);
                 }

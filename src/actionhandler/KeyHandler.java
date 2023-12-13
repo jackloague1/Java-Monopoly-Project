@@ -10,6 +10,7 @@ import src.data.SpaceData;
 import src.game.Dice;
 import src.game.GamePanel;
 import src.game.Player;
+import src.game.PlayerManager;
 import src.game.Profile;
 import src.game.Ui;
 
@@ -21,6 +22,7 @@ public class KeyHandler extends KeyAdapter {
     public SpaceData spaceData;
     public Ui ui;
     public Dice dice;
+    public PlayerManager playerManager;
     public ArrayList<Profile> profiles;
     public ArrayList<Player> players;
 
@@ -28,11 +30,13 @@ public class KeyHandler extends KeyAdapter {
     * Constructor.
     */
     public KeyHandler(GamePanel gamePanel, SpaceData spaceData, Ui ui, Dice dice, 
-                      ArrayList<Profile> profiles, ArrayList<Player> players) {
+                      PlayerManager playerManager, ArrayList<Profile> profiles, 
+                      ArrayList<Player> players) {
         this.gamePanel = gamePanel;
         this.spaceData = spaceData;
         this.ui = ui;
         this.dice = dice;
+        this.playerManager = playerManager;
         this.profiles = profiles;
         this.players = players;
     }

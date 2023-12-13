@@ -32,6 +32,7 @@ public class Ui {
     public SpaceData spaceData;
     public SaveLoad saveLoad;
     public Dice dice;
+    public PlayerManager playerManager;
     public ArrayList<Profile> profiles;
     public ArrayList<Player> players;
 
@@ -89,6 +90,31 @@ public class Ui {
     public JLabel managerBuildingButton;
     public JLabel managerBankruptcyButton;
     public JLabel managerBackButton;
+    public JLabel mortgageButton;
+    public JLabel unMortgageButton;
+    public JComboBox<String> playerTradingList;
+    public JLabel startTradingButton;
+    public PropertyBox[] mortgagingProperties;
+    public PropertyBox[] tradingCurrentPlayerProperties;
+    public PropertyBox[] tradingPlayerTradingWithProperties;
+    public JLabel offerTradeButton;
+    public JLabel declineTradeButton;
+    public JLabel acceptTradeButton;
+    public JLabel bankruptcyNoButton;
+    public JLabel bankruptcyYesButton;
+    public JLabel backtoMainMenuButton;
+    // public 
+    // public JLabel mortgageButton;
+    // public JLabel[] tradingMenuCurrentPlayerPropertyBoxLabels;
+    // public JLabel[] tradingMenuPlayerTradingWithPropertyBoxLabels;
+    // public JScrollPane tradingCurrentPlayerProperties;
+    // public JLabel tradingCurrentPlayerAdd;
+    // public JScrollPane tradingPlayerTradingWithProperties;
+    // public JLabel tradingPlayerTradingWithAdd;
+    // public JScrollPane tradingCurrentPlayerTradingProperties;
+    // public JLabel tradingCurrentPlayerRemove;
+    // public JScrollPane tradingPlayerTradingWithTradingProperties;
+    // public JLabel tradingPlayerTradingWithRemove;
 
     public int playerAmount;
     public int profileNameSeperator;
@@ -101,6 +127,21 @@ public class Ui {
     public int hoveredPlayerBox;
     public boolean hoveringAddPlayerBox;
     public int hoveredRemovePlayerButton;
+    public int mortgagingSelectedProperty;
+    public int mortgagingHoveredProperty;
+    public int tradingMenuHoveredCurrentPlayerProperty;
+    public int tradingMenuHoveredPlayerTradingWithProperty;
+    public ArrayList<Integer> tradingMenuSelectedCurrentPlayerProperties;
+    public ArrayList<Integer> tradingMenuSelectedPlayerTradingWithProperties;
+
+    public final int [] mortgagingPropertyBoxesX;
+    public final int [] mortgagingPropertyBoxesY;
+    public final int mortgagingPropertyWidth;
+    public final int mortgagingPropertyHeight;
+    public final int [] tradingMenuPropertyBoxesX;
+    public final int [] tradingMenuPropertyBoxesY;
+    public final int tradingMenuPropertyWidth;
+    public final int tradingMenuPropertyHeight;
 
     public boolean lastScreenIsSetUp = false;
 
@@ -111,13 +152,13 @@ public class Ui {
     * Constructor.
     */
     public Ui(GamePanel gamePanel, Fonts fonts, SpaceData spaceData, SaveLoad saveLoad, Dice dice, 
-              ArrayList<Profile> profiles, 
-              ArrayList<Player> players) {
+              PlayerManager playerManager, ArrayList<Profile> profiles, ArrayList<Player> players) {
         this.gamePanel = gamePanel;
         this.fonts = fonts;
         this.spaceData = spaceData;
         this.saveLoad = saveLoad;
         this.dice = dice;
+        this.playerManager = playerManager;
         this.profiles = profiles;
         this.players = players;
 
@@ -133,8 +174,10 @@ public class Ui {
 
         playerTokenNames = new String [] {"Purple", "Blue", "Red", "Green"};
 
-        mouseHandler = new MouseHandler(gamePanel, spaceData, this, dice, profiles, players);
-        keyHandler = new KeyHandler(gamePanel, spaceData, this, dice, profiles, players);
+        mouseHandler = new MouseHandler(gamePanel, spaceData, this, dice, playerManager, 
+                                        profiles, players);
+        keyHandler = new KeyHandler(gamePanel, spaceData, this, dice, playerManager, 
+                                    profiles, players);
 
         createTitleScreenUi();
         createSetUpScreenUi();
@@ -167,6 +210,40 @@ public class Ui {
         hoveredPlayerBox = -1;
         hoveringAddPlayerBox = false;
         hoveredRemovePlayerButton = -1;
+        mortgagingHoveredProperty = -1;
+        tradingMenuHoveredCurrentPlayerProperty = -1;
+        tradingMenuHoveredPlayerTradingWithProperty = -1;
+
+        tradingMenuSelectedCurrentPlayerProperties = new ArrayList<Integer>();
+        tradingMenuSelectedPlayerTradingWithProperties = new ArrayList<Integer>();
+
+        mortgagingPropertyBoxesX = new int [] { 175, 250, 325, 400, 475, 550, 625,
+                                                175, 250, 325, 400, 475, 550, 625,
+                                                175, 250, 325, 400, 475, 550, 625,
+                                                175, 250, 325, 400, 475, 550, 625};
+        mortgagingPropertyBoxesY = new int [] { 200, 200, 200, 200, 200, 200, 200, 
+                                                275, 275, 275, 275, 275, 275, 275,
+                                                350, 350, 350, 350, 350, 350, 350,
+                                                425, 425, 425, 425, 425, 425, 425};
+        mortgagingPropertyWidth = 50;
+        mortgagingPropertyHeight = 50;
+
+        tradingMenuPropertyBoxesX = new int [] { 25, 100, 175, 250, 
+                                                25, 100, 175, 250,
+                                                25, 100, 175, 250,
+                                                25, 100, 175, 250,
+                                                25, 100, 175, 250,
+                                                25, 100, 175, 250,
+                                                25, 100, 175, 250 };
+        tradingMenuPropertyBoxesY = new int [] { 200, 200, 200, 200,
+                                                275, 275, 275, 275,
+                                                350, 350, 350, 350,
+                                                425, 425, 425, 425,
+                                                500, 500, 500, 500,
+                                                575, 575, 575, 575,
+                                                650, 650, 650, 650 };
+        tradingMenuPropertyWidth = 50;
+        tradingMenuPropertyHeight = 50;
 
         createMainGameUi();
         createManagerUi();
@@ -195,7 +272,7 @@ public class Ui {
     */
     public void createSetUpScreenUi() {
         setUpScreenProfileList = new JComboBox();
-        setUpScreenProfileList.setBounds(210, 100, 100, 20);
+        setUpScreenProfileList.setBounds(210, 150, 100, 20);
         gamePanel.add(setUpScreenProfileList);
         setUpScreenProfileList.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -226,11 +303,11 @@ public class Ui {
         }
 
         playerTokenLeftArrowLabel = new JLabel();
-        playerTokenLeftArrowLabel.setBounds(480, 117, 30, 30);
+        playerTokenLeftArrowLabel.setBounds(480, 137, 30, 30);
         gamePanel.add(playerTokenLeftArrowLabel);
         playerTokenLeftArrowLabel.addMouseListener(mouseHandler);
         playerTokenRightArrowLabel = new JLabel();
-        playerTokenRightArrowLabel.setBounds(630, 117, 30, 30);
+        playerTokenRightArrowLabel.setBounds(630, 137, 30, 30);
         gamePanel.add(playerTokenRightArrowLabel);
         playerTokenRightArrowLabel.addMouseListener(mouseHandler);
 
@@ -404,6 +481,175 @@ public class Ui {
     }
 
     /**
+    * Determines if a property in the mortgaging menu is mortgaged or not.
+    */
+    public boolean isPropertyMortgaged(PropertyBox selectedProperty) {
+        if (mortgagingSelectedProperty != -1) {
+            if (selectedProperty.propertyType == "Normal Property") {
+                if (selectedProperty.normalProperty.isMortgaged == false) {
+                    return false;
+                } else {
+                    return true;
+                }
+            } else if (selectedProperty.propertyType == "Railroad") {
+                if (selectedProperty.railroadProperty.isMortgaged == false) {
+                    return false;
+                } else {
+                    return true;
+                }
+              } else if (selectedProperty.propertyType == "Utility") {
+                if (selectedProperty.utilityProperty.isMortgaged == false) {
+                    return false;
+                } else {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+    * Determines if a player has enough money to unmortgage a property.
+    */
+    public boolean canPlayerUnmortgage(PropertyBox selectedProperty) {
+        if (mortgagingSelectedProperty != -1) {
+            if (selectedProperty.propertyType == "Normal Property") {
+                if (gamePanel.currentPlayer.money >= selectedProperty.normalProperty.unMortgageFee) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else if (selectedProperty.propertyType == "Railroad") {
+                if (gamePanel.currentPlayer.money >= selectedProperty.railroadProperty.unMortgageFee) {
+                    return true;
+                } else {
+                    return false;
+                }
+              } else if (selectedProperty.propertyType == "Utility") {
+                if (gamePanel.currentPlayer.money >= selectedProperty.utilityProperty.unMortgageFee) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    public void unMortgageProperty(PropertyBox property) {
+        if (property.propertyType == "Normal Property") {
+            property.normalProperty.isMortgaged = false;
+            gamePanel.currentPlayer.money -= property.normalProperty.unMortgageFee;
+        } else if (property.propertyType == "Railroad") {
+            property.railroadProperty.isMortgaged = false;
+            gamePanel.currentPlayer.money -= property.railroadProperty.unMortgageFee;
+        } else if (property.propertyType == "Utility") {
+            property.utilityProperty.isMortgaged = false;
+            gamePanel.currentPlayer.money -= property.utilityProperty.unMortgageFee;
+        }
+    }
+
+    public void mortgageProperty(PropertyBox property) {
+        if (property.propertyType == "Normal Property") {
+            property.normalProperty.isMortgaged = true;
+            gamePanel.currentPlayer.money += property.normalProperty.mortgageValue;
+        } else if (property.propertyType == "Railroad") {
+            property.railroadProperty.isMortgaged = true;
+            gamePanel.currentPlayer.money += property.railroadProperty.mortgageValue;
+        } else if (property.propertyType == "Utility") {
+            property.utilityProperty.isMortgaged = true;
+            gamePanel.currentPlayer.money += property.utilityProperty.mortgageValue;
+        }
+    }
+
+    /**
+    * Checks to ensure at least one property from either the current player or the player being
+    * traded with is selected before a trade can be offered.
+    */
+    public boolean canOfferTrade() {
+        for (int i = 0; i < tradingCurrentPlayerProperties.length; i++) {
+            if (tradingCurrentPlayerProperties[i].selected == true
+                || tradingPlayerTradingWithProperties[i].selected == true) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+    * Trades properties between players based on the properties selected in the trading menu.
+    */
+    public void trade() {
+        for (int i = 0; i < playerManager.currentPlayerPropertyAmount; i++) {
+            if (tradingCurrentPlayerProperties[i].selected == true) {
+                if (tradingCurrentPlayerProperties[i].propertyType == "Normal Property") {
+                    for (int j = 0; i < spaceData.normalProperties.size(); j++) {
+                        if (spaceData.normalProperties.get(j) 
+                            == tradingCurrentPlayerProperties[i].normalProperty) {
+                            spaceData.normalProperties.get(j).owner 
+                                = playerManager.playerTradingWith;
+                            break;
+                        }
+                    }
+                } else if (tradingCurrentPlayerProperties[i].propertyType == "Railroad") {
+                    for (int j = 0; i < spaceData.railroadProperties.size(); j++) {
+                        if (spaceData.railroadProperties.get(j) 
+                            == tradingCurrentPlayerProperties[i].railroadProperty) {
+                            spaceData.railroadProperties.get(j).owner 
+                                = playerManager.playerTradingWith;
+                            break;
+                        }
+                    }
+                } else if (tradingCurrentPlayerProperties[i].propertyType == "Utility") {
+                    for (int j = 0; i < spaceData.utilityProperties.size(); j++) {
+                        if (spaceData.utilityProperties.get(j) 
+                            == tradingCurrentPlayerProperties[i].utilityProperty) {
+                            spaceData.utilityProperties.get(j).owner 
+                                = playerManager.playerTradingWith;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < playerManager.playerTradingWithPropertyAmount; i++) {
+            if (tradingPlayerTradingWithProperties[i].selected == true) {
+                if (tradingPlayerTradingWithProperties[i].propertyType == "Normal Property") {
+                    for (int j = 0; i < spaceData.normalProperties.size(); j++) {
+                        if (spaceData.normalProperties.get(j) 
+                            == tradingPlayerTradingWithProperties[i].normalProperty) {
+                            spaceData.normalProperties.get(j).owner 
+                                = gamePanel.currentPlayer;
+                            break;
+                        }
+                    }
+                } else if (tradingPlayerTradingWithProperties[i].propertyType == "Railroad") {
+                    for (int j = 0; i < spaceData.railroadProperties.size(); j++) {
+                        if (spaceData.railroadProperties.get(j) 
+                            == tradingPlayerTradingWithProperties[i].railroadProperty) {
+                            spaceData.railroadProperties.get(j).owner 
+                                = gamePanel.currentPlayer;
+                            break;
+                        }
+                    }
+                } else if (tradingPlayerTradingWithProperties[i].propertyType == "Utility") {
+                    for (int j = 0; i < spaceData.utilityProperties.size(); j++) {
+                        if (spaceData.utilityProperties.get(j) 
+                            == tradingPlayerTradingWithProperties[i].utilityProperty) {
+                            spaceData.utilityProperties.get(j).owner 
+                                = gamePanel.currentPlayer;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
     * Creates the interactable components for the main board screen of the game.
     */
     public void createMainGameUi() {
@@ -487,7 +733,169 @@ public class Ui {
         managerBackButton = new JLabel();
         createButtonLabel(managerBackButton, "Back", 
                           fonts.pixeloidSans, Color.white, 16, 20, 750, 100, 30);
-        managerBackButton.setVisible(false);      
+        managerBackButton.setVisible(false); 
+
+        mortgageButton = new JLabel();
+        createButtonLabel(mortgageButton, "Mortgage", 
+                          fonts.pixeloidSans, Color.white, 16, 200, 670, 120, 30);
+        mortgageButton.setVisible(false);
+
+        unMortgageButton = new JLabel();
+        createButtonLabel(unMortgageButton, "Unmortgage", 
+                          fonts.pixeloidSans, Color.white, 16, 480, 670, 120, 30);
+        unMortgageButton.setVisible(false);
+        
+        playerTradingList = new JComboBox();
+        playerTradingList.setBounds(350, 150, 100, 20);
+        gamePanel.add(playerTradingList);
+        playerTradingList.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // if (playerTradingList.getSelectedItem() != null) {
+                //     selectedProfiles[selectedPlayerBox] 
+                //         = setUpScreenProfileList.getSelectedItem().toString();
+                //     for (int i = 0; i < selectedProfiles.length; i++) {
+                //         System.out.print(selectedProfiles[i]);
+                //         System.out.print("\n");
+                //     }
+                // }
+
+                // if (setUpReady() == true) {
+                //     startGameButton.setForeground(Color.white);
+                // } else {
+                //     startGameButton.setForeground(new Color(255, 255, 255, 75));
+                // }
+            }
+        });
+        playerTradingList.setVisible(false);
+
+        startTradingButton = new JLabel();
+        createButtonLabel(startTradingButton, "Trade", 
+                          fonts.pixeloidSans, Color.white, 16, 350, 200, 100, 30);
+        startTradingButton.setVisible(false);
+
+        mortgagingProperties = new PropertyBox[28];
+
+        for (int i = 0; i < mortgagingProperties.length; i++) {
+            mortgagingProperties[i] = new PropertyBox();
+            mortgagingProperties[i].boxLabel = new JLabel();
+            mortgagingProperties[i].boxLabel.setBounds(mortgagingPropertyBoxesX[i], 
+                                                       mortgagingPropertyBoxesY[i], 
+                                                       mortgagingPropertyWidth, 
+                                                       mortgagingPropertyHeight);
+            gamePanel.add(mortgagingProperties[i].boxLabel);
+            mortgagingProperties[i].boxLabel.addMouseListener(mouseHandler);
+            mortgagingProperties[i].boxLabel.setVisible(false);
+        }
+
+        tradingCurrentPlayerProperties = new PropertyBox[28];
+        tradingPlayerTradingWithProperties = new PropertyBox[28];
+
+        for (int i = 0; i < tradingCurrentPlayerProperties.length; i++) {
+            tradingCurrentPlayerProperties[i] = new PropertyBox();
+            tradingCurrentPlayerProperties[i].boxLabel = new JLabel();
+            tradingCurrentPlayerProperties[i].boxLabel.setBounds(
+                                                   tradingMenuPropertyBoxesX[i], 
+                                                   tradingMenuPropertyBoxesY[i], 
+                                                   tradingMenuPropertyWidth, 
+                                                   tradingMenuPropertyHeight);
+            gamePanel.add(tradingCurrentPlayerProperties[i].boxLabel);
+            tradingCurrentPlayerProperties[i].boxLabel.addMouseListener(mouseHandler);
+            tradingCurrentPlayerProperties[i].boxLabel.setVisible(false);
+            
+            tradingPlayerTradingWithProperties[i] = new PropertyBox();
+            tradingPlayerTradingWithProperties[i].boxLabel = new JLabel();
+            tradingPlayerTradingWithProperties[i].boxLabel.setBounds(
+                                                   tradingMenuPropertyBoxesX[i] + 400, 
+                                                   tradingMenuPropertyBoxesY[i], 
+                                                   tradingMenuPropertyWidth, 
+                                                   tradingMenuPropertyHeight);
+            gamePanel.add(tradingPlayerTradingWithProperties[i].boxLabel);
+            tradingPlayerTradingWithProperties[i].boxLabel.addMouseListener(mouseHandler);
+            tradingCurrentPlayerProperties[i].boxLabel.setVisible(false);
+        }
+
+        offerTradeButton = new JLabel();
+        createButtonLabel(offerTradeButton, "Offer", 
+                          fonts.pixeloidSans, Color.white, 16, 680, 750, 100, 30);
+        offerTradeButton.setVisible(false);
+
+        declineTradeButton = new JLabel();
+        createButtonLabel(declineTradeButton, "Decline", 
+                          fonts.pixeloidSans, Color.white, 16, 200, 670, 100, 30);
+        declineTradeButton.setVisible(false);
+
+        acceptTradeButton = new JLabel();
+        createButtonLabel(acceptTradeButton, "Accept", 
+                          fonts.pixeloidSans, Color.white, 16, 500, 670, 100, 30);
+        acceptTradeButton.setVisible(false);
+
+        bankruptcyNoButton = new JLabel();
+        createButtonLabel(bankruptcyNoButton, "No", 
+                          fonts.pixeloidSans, Color.white, 16, 220, 450, 100, 30);
+        bankruptcyNoButton.setVisible(false);
+
+        bankruptcyYesButton = new JLabel();
+        createButtonLabel(bankruptcyYesButton, "Yes", 
+                          fonts.pixeloidSans, Color.white, 16, 480, 450, 100, 30);
+        bankruptcyYesButton.setVisible(false);
+
+        backtoMainMenuButton = new JLabel();
+        createButtonLabel(backtoMainMenuButton, "Back to Main Menu", 
+                          fonts.pixeloidSans, Color.white, 16, 200, 450, 400, 50);
+        backtoMainMenuButton.setVisible(false);
+
+        // tradingCurrentPlayerProperties = new JScrollPane();
+        // tradingCurrentPlayerProperties.setBounds(75, 250, 250, 150);
+        // gamePanel.add(tradingCurrentPlayerProperties);
+        // tradingCurrentPlayerProperties.setVisible(false);
+
+        // tradingCurrentPlayerAdd = new JLabel();
+        // createButtonLabel(tradingCurrentPlayerAdd, "Add", 
+        //                   fonts.pixeloidSans, Color.white, 16, 75, 425, 100, 30);
+        // tradingCurrentPlayerAdd.setVisible(false);
+
+        // tradingPlayerTradingWithProperties = new JScrollPane();
+        // tradingPlayerTradingWithProperties.setBounds(475, 250, 250, 150);
+        // gamePanel.add(tradingPlayerTradingWithProperties);
+        // tradingPlayerTradingWithProperties.setVisible(false);
+
+        // tradingPlayerTradingWithAdd = new JLabel();
+        // createButtonLabel(tradingPlayerTradingWithAdd, "Add", 
+        //                   fonts.pixeloidSans, Color.white, 16, 475, 425, 100, 30);
+        // tradingPlayerTradingWithAdd.setVisible(false);
+
+        // tradingCurrentPlayerTradingProperties = new JScrollPane();
+        // tradingCurrentPlayerTradingProperties.setBounds(75, 475, 250, 150);
+        // gamePanel.add(tradingCurrentPlayerTradingProperties);
+        // tradingCurrentPlayerTradingProperties.setVisible(false);
+
+
+    }
+
+    /**
+    * Clears the values of all property boxes of the current player in the manager menu.
+    */
+    public void clearCurrentPlayerProperties() {
+        for (int i = 0; i < tradingCurrentPlayerProperties.length; i++) {
+            tradingCurrentPlayerProperties[i].propertyType = null;
+            tradingCurrentPlayerProperties[i].normalProperty = null;
+            tradingCurrentPlayerProperties[i].railroadProperty = null;
+            tradingCurrentPlayerProperties[i].utilityProperty = null;
+            tradingCurrentPlayerProperties[i].selected = false;
+        }
+    }
+
+    /**
+    * Clears the values of all property boxes of the player being traded with in the trading menu.
+    */
+    public void clearPlayerTradingWithProperties() {
+        for (int i = 0; i < tradingPlayerTradingWithProperties.length; i++) {
+            tradingPlayerTradingWithProperties[i].propertyType = null;
+            tradingPlayerTradingWithProperties[i].normalProperty = null;
+            tradingPlayerTradingWithProperties[i].railroadProperty = null;
+            tradingPlayerTradingWithProperties[i].utilityProperty = null;
+            tradingPlayerTradingWithProperties[i].selected = false;
+        }
     }
 
     /**
@@ -543,6 +951,7 @@ public class Ui {
             profilesScreenEnterButton.setVisible(false);
             profilesScreenCreateButton.setVisible(false);
             profilesScreenMaxBackButton.setVisible(false);
+            backtoMainMenuButton.setVisible(false);
 
             // Screen title.
             HelperFunctions.drawText(g2d, "Monopoly", fonts.pixeloidSans, Color.black, 72, 
@@ -555,7 +964,7 @@ public class Ui {
             profilesButton.setVisible(true);
 
             // // Options button.
-            optionsButton.setVisible(true);
+            optionsButton.setVisible(false);
     
         } else if (GameStates.currentGameState == GameStates.SET_UP_STATE) {
             startButton.setVisible(false);
@@ -565,6 +974,10 @@ public class Ui {
             profileTextField.setVisible(false);
             profilesScreenCancelButton.setVisible(false);
             profilesScreenEnterButton.setVisible(false);
+            
+            // Screen title.
+            HelperFunctions.drawText(g2d, "Set Up", fonts.pixeloidSans, Color.white, 48, 200, 50, 
+                                     400, 50, true, true);
 
             // Profile names drop down list.
             g2d.setColor(Color.white);
@@ -577,12 +990,12 @@ public class Ui {
             // Token selection.
             if (selectedPlayerBox != -1) {
                 g2d.setColor(Color.white);
-                g2d.fillPolygon(new int[] {480, 510, 510}, new int[] {132, 117, 147}, 3);
+                g2d.fillPolygon(new int[] {480, 510, 510}, new int[] {152, 137, 167}, 3);
                 playerTokenLeftArrowLabel.setVisible(true);
-                drawBlankBox(g2d, Color.black, Color.gray, 530, 92, 80, 80, 2);
-                g2d.drawImage(selectedTokens[selectedPlayerBox], 540, 102, 60, 60, null);
+                drawBlankBox(g2d, Color.black, Color.gray, 530, 112, 80, 80, 2);
+                g2d.drawImage(selectedTokens[selectedPlayerBox], 540, 122, 60, 60, null);
                 g2d.setColor(Color.white);
-                g2d.fillPolygon(new int[] {630, 630, 660}, new int[] {117, 147, 132}, 3);
+                g2d.fillPolygon(new int[] {630, 630, 660}, new int[] {137, 167, 152}, 3);
                 playerTokenRightArrowLabel.setVisible(true);
             } else {
                 playerTokenLeftArrowLabel.setVisible(false);
@@ -704,7 +1117,7 @@ public class Ui {
             profilesScreenCreateButton.setVisible(false);
 
             // Screen title.
-            HelperFunctions.drawText(g2d, "Profiles", fonts.pixeloidSans, Color.black, 48, 200, 50, 
+            HelperFunctions.drawText(g2d, "Profiles", fonts.pixeloidSans, Color.white, 48, 200, 50, 
                                      400, 50, true, true);
 
             // Profile name box.
@@ -731,7 +1144,7 @@ public class Ui {
             profilesScreenCreateButton.setVisible(false);
 
             // Screen title.
-            HelperFunctions.drawText(g2d, "Profiles", fonts.pixeloidSans, Color.black, 48, 200, 50, 
+            HelperFunctions.drawText(g2d, "Profiles", fonts.pixeloidSans, Color.white, 48, 200, 50, 
                                      400, 50, true, true);
 
             // Profile name box.
@@ -786,7 +1199,7 @@ public class Ui {
             profilesScreenMaxBackButton.setVisible(false);
 
             // Screen title.
-            HelperFunctions.drawText(g2d, "Profiles", fonts.pixeloidSans, Color.black, 48, 200, 50, 
+            HelperFunctions.drawText(g2d, "Profiles", fonts.pixeloidSans, Color.white, 48, 200, 50, 
                                      400, 50, true, true);
 
             // Profile names list.
@@ -866,6 +1279,7 @@ public class Ui {
             managerBuildingButton.setVisible(false);
             managerBankruptcyButton.setVisible(false);
             managerBackButton.setVisible(false);
+            payButton.setVisible(false);
 
             // Roll button.
             g2d.drawImage(rollButtonImage, 79, 41, null);
@@ -915,7 +1329,8 @@ public class Ui {
                                               < spaceData.currentNormalProperty.price) {
                         buyOptionText.setForeground(new Color(255, 255, 255, 75));
                     }
-                } else if (spaceData.currentNormalProperty.owner != gamePanel.currentPlayer) {
+                } else if (spaceData.currentNormalProperty.owner != gamePanel.currentPlayer
+                           && spaceData.currentNormalProperty.isMortgaged == false) {
                     payButton.setVisible(true);
 
                     if (players.get(gamePanel.currentPlayerNumber - 1).money 
@@ -936,7 +1351,8 @@ public class Ui {
                                               < spaceData.currentRailroad.price) {
                         buyOptionText.setForeground(new Color(255, 255, 255, 75));
                     }
-                } else if (spaceData.currentRailroad.owner != gamePanel.currentPlayer) {
+                } else if (spaceData.currentRailroad.owner != gamePanel.currentPlayer
+                           && spaceData.currentRailroad.isMortgaged == false) {
                     payButton.setVisible(true);
 
                     if (players.get(gamePanel.currentPlayerNumber - 1).money 
@@ -955,7 +1371,8 @@ public class Ui {
                                               < spaceData.currentUtility.price) {
                         buyOptionText.setForeground(new Color(255, 255, 255, 75));
                     }
-                } else if (spaceData.currentUtility.owner != gamePanel.currentPlayer) {
+                } else if (spaceData.currentUtility.owner != gamePanel.currentPlayer
+                           && spaceData.currentUtility.isMortgaged == false) {
                     payButton.setVisible(true);
 
                     if (players.get(gamePanel.currentPlayerNumber - 1).money 
@@ -1002,6 +1419,17 @@ public class Ui {
             buyOptionText.setVisible(false);
             passOptionText.setVisible(false);
             payButton.setVisible(false);
+            jailRollButton.setVisible(false);
+            jailPayBailButton.setVisible(false);
+            jailUseCardButton.setVisible(false);
+            mortgageButton.setVisible(false);
+            unMortgageButton.setVisible(false);
+            playerTradingList.setVisible(false);
+            startTradingButton.setVisible(false);
+            declineTradeButton.setVisible(false);
+            acceptTradeButton.setVisible(false);
+            bankruptcyNoButton.setVisible(false);
+            bankruptcyYesButton.setVisible(false);
 
             // Mortgaging/Unmortgaging button.
             managerMortgagingButton.setVisible(true);
@@ -1012,16 +1440,432 @@ public class Ui {
             // Building/selling button.
             managerBuildingButton.setVisible(true);
 
-            // Declare bankruptcy button.
+            // Declare bankruptcy button.m
             managerBankruptcyButton.setVisible(true);
 
             // Back button.
             managerBackButton.setVisible(true);
+        } else if (GameStates.currentGameState == GameStates.MORTGAGING_MENU_STATE) {
+            managerMortgagingButton.setVisible(false);
+            managerTradingButton.setVisible(false);
+            managerBuildingButton.setVisible(false);
+            managerBankruptcyButton.setVisible(false);
+
+            int normalPropertiesIndex = 0;
+            int railroadsIndex = 0;
+            int utilitiesIndex = 0;
+
+            for (int i = 0; i < playerManager.currentPlayerPropertyAmount; i++) {
+                HelperFunctions.drawBlankBox(g2d, Color.black, Color.gray, 
+                                             mortgagingPropertyBoxesX[i], 
+                                             mortgagingPropertyBoxesY[i], 
+                                             mortgagingPropertyWidth, 
+                                             mortgagingPropertyHeight, 
+                                             2);
+                if (i < playerManager.currentPlayerNormalProperties.size()) {
+                    mortgagingProperties[i].normalProperty 
+                        = playerManager.currentPlayerNormalProperties.get(normalPropertiesIndex);
+                    mortgagingProperties[i].propertyType = "Normal Property";
+                    if (mortgagingProperties[i].normalProperty.isMortgaged == true) {
+                        HelperFunctions.drawText(g2d, "M", fonts.pixeloidSans, Color.black, 18, 
+                                                 mortgagingPropertyBoxesX[i], mortgagingPropertyBoxesY[i], 
+                                                 mortgagingPropertyWidth, mortgagingPropertyHeight, 
+                                                 true, true);
+                    }
+                    g2d.setColor(HelperFunctions.getColor(playerManager.currentPlayerNormalProperties.get(normalPropertiesIndex)));
+                    g2d.fillRect(mortgagingPropertyBoxesX[i] + 5, 
+                                 mortgagingPropertyBoxesY[i] + 5, 
+                                 40, 10);
+                    normalPropertiesIndex++;
+                } else if (i < playerManager.currentPlayerNormalProperties.size() 
+                            + playerManager.currentPlayerRailroads.size()) {
+                    mortgagingProperties[i].railroadProperty
+                        = playerManager.currentPlayerRailroads.get(railroadsIndex);
+                    mortgagingProperties[i].propertyType = "Railroad";
+                    if (mortgagingProperties[i].railroadProperty.isMortgaged == true) {
+                        HelperFunctions.drawText(g2d, "M", fonts.pixeloidSans, Color.black, 18, 
+                                                 mortgagingPropertyBoxesX[i], mortgagingPropertyBoxesY[i], 
+                                                 mortgagingPropertyWidth, mortgagingPropertyHeight, 
+                                                 true, true);
+                    }
+                    g2d.drawImage(playerManager.currentPlayerRailroads.get(railroadsIndex).image, 
+                                  mortgagingPropertyBoxesX[i] + 5, 
+                                  mortgagingPropertyBoxesY[i] + 5, 
+                                  null);
+                    railroadsIndex++;
+                } else if (i < playerManager.currentPlayerNormalProperties.size() 
+                            + playerManager.currentPlayerRailroads.size() 
+                            + playerManager.currentPlayerUtilities.size()) {
+                    mortgagingProperties[i].utilityProperty 
+                        = playerManager.currentPlayerUtilities.get(utilitiesIndex);
+                    mortgagingProperties[i].propertyType = "Utility";
+                    if (mortgagingProperties[i].utilityProperty.isMortgaged == true) {
+                        HelperFunctions.drawText(g2d, "M", fonts.pixeloidSans, Color.black, 18, 
+                                                 mortgagingPropertyBoxesX[i], mortgagingPropertyBoxesY[i], 
+                                                 mortgagingPropertyWidth, mortgagingPropertyHeight, 
+                                                 true, true);
+                    }
+                    utilitiesIndex++;
+                }
+
+                mortgagingProperties[i].boxLabel.setVisible(true);
+            }
+
+            // Highlights a property box if it is selected.
+            if (mortgagingSelectedProperty != -1) {
+                g2d.setColor(Color.white);
+                g2d.setStroke(new BasicStroke(5));
+                g2d.drawRect(mortgagingPropertyBoxesX[mortgagingSelectedProperty], 
+                             mortgagingPropertyBoxesY[mortgagingSelectedProperty],
+                             mortgagingPropertyWidth, mortgagingPropertyHeight);
+
+                if (mortgagingProperties[mortgagingSelectedProperty].propertyType 
+                    == "Normal Property") {
+                    HelperFunctions.drawText(g2d, 
+                                             mortgagingProperties[mortgagingSelectedProperty].normalProperty.name,
+                                             fonts.pixeloidSans, Color.white, 
+                                             22, 200, 500, 400, 50, true, true);
+                    if (mortgagingProperties[mortgagingSelectedProperty].normalProperty.isMortgaged == false) {
+                        HelperFunctions.drawText(g2d, 
+                                                 "Mortgage Value: $" + mortgagingProperties[mortgagingSelectedProperty].normalProperty.mortgageValue, 
+                                                 fonts.pixeloidSans, Color.white, 
+                                                 22, 200, 550, 400, 50, true, true);
+                    } else {
+                        HelperFunctions.drawText(g2d, 
+                                                 "Unmortgage Fee: $" + mortgagingProperties[mortgagingSelectedProperty].normalProperty.unMortgageFee, 
+                                                 fonts.pixeloidSans, Color.white, 
+                                                 22, 200, 550, 400, 50, true, true);
+                    }
+                } else if (mortgagingProperties[mortgagingSelectedProperty].propertyType 
+                    == "Railroad") {
+                    HelperFunctions.drawText(g2d, 
+                                             mortgagingProperties[mortgagingSelectedProperty].railroadProperty.name,
+                                             fonts.pixeloidSans, Color.white, 
+                                             22, 200, 500, 400, 50, true, true);
+                    if (mortgagingProperties[mortgagingSelectedProperty].railroadProperty.isMortgaged == false) {
+                        HelperFunctions.drawText(g2d, 
+                                                 "Mortgage Value: $" + mortgagingProperties[mortgagingSelectedProperty].railroadProperty.mortgageValue, 
+                                                 fonts.pixeloidSans, Color.white, 
+                                                 22, 200, 550, 400, 50, true, true);
+                    } else {
+                        HelperFunctions.drawText(g2d, 
+                                                 "Unmortgage Fee: $" + mortgagingProperties[mortgagingSelectedProperty].railroadProperty.unMortgageFee, 
+                                                 fonts.pixeloidSans, Color.white, 
+                                                 22, 200, 550, 400, 50, true, true);
+                    }
+                } else if (mortgagingProperties[mortgagingSelectedProperty].propertyType 
+                    == "Utility") {
+                    HelperFunctions.drawText(g2d, 
+                                             mortgagingProperties[mortgagingSelectedProperty].utilityProperty.name,
+                                             fonts.pixeloidSans, Color.white, 
+                                             22, 200, 500, 400, 50, true, true);
+                    if (mortgagingProperties[mortgagingSelectedProperty].utilityProperty.isMortgaged == false) {
+                        HelperFunctions.drawText(g2d, 
+                                                 "Mortgage Value: $" + mortgagingProperties[mortgagingSelectedProperty].utilityProperty.mortgageValue, 
+                                                 fonts.pixeloidSans, Color.white, 
+                                                 22, 200, 550, 400, 50, true, true);
+                    } else {
+                        HelperFunctions.drawText(g2d, 
+                                                 "Unmortgage Fee: $" + mortgagingProperties[mortgagingSelectedProperty].utilityProperty.unMortgageFee, 
+                                                 fonts.pixeloidSans, Color.white, 
+                                                 22, 200, 550, 400, 50, true, true);
+                    }
+                }
+            }
+
+            // Highlights a property box if it is being hovered by the cursor.
+            if (mortgagingHoveredProperty != -1) {
+                g2d.setColor(Color.white);
+                g2d.setStroke(new BasicStroke(5));
+                g2d.drawRect(mortgagingPropertyBoxesX[mortgagingHoveredProperty], 
+                             mortgagingPropertyBoxesY[mortgagingHoveredProperty],
+                             mortgagingPropertyWidth, mortgagingPropertyHeight);
+            }
+
+            if (playerManager.currentPlayerPropertyAmount > 0) {
+                mortgageButton.setVisible(true);
+                unMortgageButton.setVisible(true);
+            }
+
+            managerBackButton.setVisible(true);   
         } else if (GameStates.currentGameState == GameStates.TRADING_PLAYER_SELECT_STATE) {
             managerMortgagingButton.setVisible(false);
             managerTradingButton.setVisible(false);
             managerBuildingButton.setVisible(false);
             managerBankruptcyButton.setVisible(false);
+            offerTradeButton.setVisible(false);
+
+            for (int i = 0; i < tradingCurrentPlayerProperties.length; i++) {
+                tradingCurrentPlayerProperties[i].boxLabel.setVisible(false);
+                tradingPlayerTradingWithProperties[i].boxLabel.setVisible(false);
+            }
+
+            playerTradingList.setVisible(true);
+            startTradingButton.setVisible(true);
+        } else if (GameStates.currentGameState == GameStates.TRADING_CREATE_STATE) {
+            playerTradingList.setVisible(false);
+            startTradingButton.setVisible(false);
+            declineTradeButton.setVisible(false);
+            acceptTradeButton.setVisible(false);
+            // tradingCurrentPlayerProperties.setVisible(true);
+            // tradingCurrentPlayerAdd.setVisible(true);
+            // tradingPlayerTradingWithProperties.setVisible(true);
+            // tradingPlayerTradingWithAdd.setVisible(true);
+            // tradingCurrentPlayerTradingProperties.setVisible(true);
+
+            int normalPropertiesIndex = 0;
+            int railroadsIndex = 0;
+            int utilitiesIndex = 0;
+
+            for (int i = 0; i < playerManager.currentPlayerPropertyAmount; i++) {
+                HelperFunctions.drawBlankBox(g2d, Color.black, Color.gray, 
+                                             tradingMenuPropertyBoxesX[i], 
+                                             tradingMenuPropertyBoxesY[i], 
+                                             tradingMenuPropertyWidth, 
+                                             tradingMenuPropertyHeight, 
+                                             2);
+                if (i < playerManager.currentPlayerNormalProperties.size()) {
+                    tradingCurrentPlayerProperties[i].normalProperty 
+                        = playerManager.currentPlayerNormalProperties.get(normalPropertiesIndex);
+                    tradingCurrentPlayerProperties[i].propertyType = "Normal Property";
+                    g2d.setColor(HelperFunctions.getColor(playerManager.currentPlayerNormalProperties.get(normalPropertiesIndex)));
+                    g2d.fillRect(tradingMenuPropertyBoxesX[i] + 5, 
+                                 tradingMenuPropertyBoxesY[i] + 5, 
+                                 40, 10);
+                    normalPropertiesIndex++;
+                } else if (i < playerManager.currentPlayerNormalProperties.size() 
+                            + playerManager.currentPlayerRailroads.size()) {
+                    tradingCurrentPlayerProperties[i].railroadProperty
+                        = playerManager.currentPlayerRailroads.get(railroadsIndex);
+                    tradingCurrentPlayerProperties[i].propertyType = "Railroad";
+                    g2d.drawImage(playerManager.currentPlayerRailroads.get(railroadsIndex).image, 
+                                  tradingMenuPropertyBoxesX[i] + 5, 
+                                  tradingMenuPropertyBoxesY[i] + 5, 
+                                  null);
+                    railroadsIndex++;
+                } else if (i < playerManager.currentPlayerNormalProperties.size() 
+                            + playerManager.currentPlayerRailroads.size() 
+                            + playerManager.currentPlayerUtilities.size()) {
+                    tradingCurrentPlayerProperties[i].utilityProperty 
+                        = playerManager.currentPlayerUtilities.get(utilitiesIndex);
+                    tradingCurrentPlayerProperties[i].propertyType = "Utility";
+                    utilitiesIndex++;
+                }
+
+                if (tradingCurrentPlayerProperties[i].selected == true) {
+                    g2d.drawImage(playerManager.tradingRightArrowImage, 
+                                 tradingMenuPropertyBoxesX[i] + 10, 
+                                 tradingMenuPropertyBoxesY[i] + 10, 
+                                 null); 
+                }
+
+                // for (int j = 0; j < tradingMenuSelectedCurrentPlayerProperties.size(); j++) {
+                //     if (tradingMenuSelectedCurrentPlayerProperties.get(j) == i) {
+                //         g2d.drawImage(playerManager.tradingRightArrowImage, tradingMenuPropertyBoxesX[i] + 10, tradingMenuPropertyBoxesY[i] + 10, null);
+                //     }
+                // }
+                tradingCurrentPlayerProperties[i].boxLabel.setVisible(true);
+            }
+
+            // Highlights a property box of the current player if it is being hovered by the cursor.
+            if (tradingMenuHoveredCurrentPlayerProperty != -1) {
+                g2d.setColor(Color.white);
+                g2d.setStroke(new BasicStroke(5));
+                g2d.drawRect(tradingMenuPropertyBoxesX[tradingMenuHoveredCurrentPlayerProperty], 
+                             tradingMenuPropertyBoxesY[tradingMenuHoveredCurrentPlayerProperty],
+                             tradingMenuPropertyWidth, tradingMenuPropertyHeight);
+            }
+
+            normalPropertiesIndex = 0;
+            railroadsIndex = 0;
+            utilitiesIndex = 0;
+
+            for (int i = 0; i < playerManager.playerTradingWithPropertyAmount; i++) {
+                HelperFunctions.drawBlankBox(g2d, Color.black, Color.gray, 
+                                             tradingMenuPropertyBoxesX[i] + 400, 
+                                             tradingMenuPropertyBoxesY[i], 
+                                             tradingMenuPropertyWidth, 
+                                             tradingMenuPropertyHeight, 
+                                             2);
+                if (i < playerManager.playerTradingWithNormalProperties.size()) {
+                    tradingPlayerTradingWithProperties[i].normalProperty 
+                        = playerManager.playerTradingWithNormalProperties.get(normalPropertiesIndex);
+                    tradingPlayerTradingWithProperties[i].propertyType 
+                        = "Normal Property";
+                    g2d.setColor(HelperFunctions.getColor(playerManager.playerTradingWithNormalProperties.get(normalPropertiesIndex)));
+                    g2d.fillRect(tradingMenuPropertyBoxesX[i] + 405, 
+                                 tradingMenuPropertyBoxesY[i] + 5, 
+                                 40, 10);
+                    normalPropertiesIndex++;
+                } else if (i < playerManager.playerTradingWithNormalProperties.size() 
+                            + playerManager.playerTradingWithRailroads.size()) {
+                    tradingPlayerTradingWithProperties[i].railroadProperty 
+                        = playerManager.playerTradingWithRailroads.get(railroadsIndex);
+                    tradingPlayerTradingWithProperties[i].propertyType 
+                        = "Railroad";
+                    g2d.drawImage(playerManager.playerTradingWithRailroads.get(railroadsIndex).image, 
+                                  tradingMenuPropertyBoxesX[i] + 405, 
+                                  tradingMenuPropertyBoxesY[i] + 5, 
+                                  null);
+                    railroadsIndex++;
+                } else if (i < playerManager.playerTradingWithNormalProperties.size() 
+                            + playerManager.playerTradingWithRailroads.size() 
+                            + playerManager.playerTradingWithUtilities.size()) {
+                    tradingPlayerTradingWithProperties[i].utilityProperty
+                        = playerManager.playerTradingWithUtilities.get(utilitiesIndex);
+                    tradingPlayerTradingWithProperties[i].propertyType 
+                        = "Utility";
+                    utilitiesIndex++;
+                }
+
+                if (tradingPlayerTradingWithProperties[i].selected == true) {
+                    g2d.drawImage(playerManager.tradingLeftArrowImage, 
+                                 tradingMenuPropertyBoxesX[i] + 410, 
+                                 tradingMenuPropertyBoxesY[i] + 10, 
+                                 null); 
+                }
+                tradingPlayerTradingWithProperties[i].boxLabel.setVisible(true);
+            }
+
+            // Highlights a property box of the player being traded with if it is being hovered by 
+            // the cursor.
+            if (tradingMenuHoveredPlayerTradingWithProperty != -1) {
+                g2d.setColor(Color.white);
+                g2d.setStroke(new BasicStroke(5));
+                g2d.drawRect(tradingMenuPropertyBoxesX[tradingMenuHoveredPlayerTradingWithProperty] + 400, 
+                             tradingMenuPropertyBoxesY[tradingMenuHoveredPlayerTradingWithProperty],
+                             tradingMenuPropertyWidth, tradingMenuPropertyHeight);
+            }
+
+            managerBackButton.setVisible(true);
+            offerTradeButton.setVisible(true);
+        } else if (GameStates.currentGameState == GameStates.TRADING_OFFER_STATE) {
+            // tradingCurrentPlayerProperties.setVisible(true);
+            // tradingCurrentPlayerAdd.setVisible(true);
+            // tradingPlayerTradingWithProperties.setVisible(true);
+            // tradingPlayerTradingWithAdd.setVisible(true);
+            // tradingCurrentPlayerTradingProperties.setVisible(true);
+            managerBackButton.setVisible(false);
+            offerTradeButton.setVisible(false);
+
+            int normalPropertiesIndex = 0;
+            int railroadsIndex = 0;
+            int utilitiesIndex = 0;
+
+            for (int i = 0; i < playerManager.currentPlayerPropertyAmount; i++) {
+                HelperFunctions.drawBlankBox(g2d, Color.black, Color.gray, 
+                                             tradingMenuPropertyBoxesX[i], 
+                                             tradingMenuPropertyBoxesY[i], 
+                                             tradingMenuPropertyWidth, 
+                                             tradingMenuPropertyHeight, 
+                                             2);
+                if (i < playerManager.currentPlayerNormalProperties.size()) {
+                    tradingCurrentPlayerProperties[i].normalProperty 
+                        = playerManager.currentPlayerNormalProperties.get(normalPropertiesIndex);
+                    tradingCurrentPlayerProperties[i].propertyType = "Normal Property";
+                    g2d.setColor(HelperFunctions.getColor(playerManager.currentPlayerNormalProperties.get(normalPropertiesIndex)));
+                    g2d.fillRect(tradingMenuPropertyBoxesX[i] + 5, 
+                                 tradingMenuPropertyBoxesY[i] + 5, 
+                                 40, 10);
+                    normalPropertiesIndex++;
+                } else if (i < playerManager.currentPlayerNormalProperties.size() 
+                            + playerManager.currentPlayerRailroads.size()) {
+                    tradingCurrentPlayerProperties[i].railroadProperty
+                        = playerManager.currentPlayerRailroads.get(railroadsIndex);
+                    tradingCurrentPlayerProperties[i].propertyType = "Railroad";
+                    g2d.drawImage(playerManager.currentPlayerRailroads.get(railroadsIndex).image, 
+                                  tradingMenuPropertyBoxesX[i] + 5, 
+                                  tradingMenuPropertyBoxesY[i] + 5, 
+                                  null);
+                    railroadsIndex++;
+                } else if (i < playerManager.currentPlayerNormalProperties.size() 
+                            + playerManager.currentPlayerRailroads.size() 
+                            + playerManager.currentPlayerUtilities.size()) {
+                    tradingCurrentPlayerProperties[i].utilityProperty 
+                        = playerManager.currentPlayerUtilities.get(utilitiesIndex);
+                    tradingCurrentPlayerProperties[i].propertyType = "Utility";
+                    utilitiesIndex++;
+                }
+
+                if (tradingCurrentPlayerProperties[i].selected == true) {
+                    g2d.drawImage(playerManager.tradingRightArrowImage, 
+                                 tradingMenuPropertyBoxesX[i] + 10, 
+                                 tradingMenuPropertyBoxesY[i] + 10, 
+                                 null); 
+                }
+
+                // for (int j = 0; j < tradingMenuSelectedCurrentPlayerProperties.size(); j++) {
+                //     if (tradingMenuSelectedCurrentPlayerProperties.get(j) == i) {
+                //         g2d.drawImage(playerManager.tradingRightArrowImage, tradingMenuPropertyBoxesX[i] + 10, tradingMenuPropertyBoxesY[i] + 10, null);
+                //     }
+                // }
+                tradingCurrentPlayerProperties[i].boxLabel.setVisible(false);
+            }
+
+            normalPropertiesIndex = 0;
+            railroadsIndex = 0;
+            utilitiesIndex = 0;
+
+            for (int i = 0; i < playerManager.playerTradingWithPropertyAmount; i++) {
+                HelperFunctions.drawBlankBox(g2d, Color.black, Color.gray, 
+                                             tradingMenuPropertyBoxesX[i] + 400, 
+                                             tradingMenuPropertyBoxesY[i], 
+                                             tradingMenuPropertyWidth, 
+                                             tradingMenuPropertyHeight, 
+                                             2);
+                if (i < playerManager.playerTradingWithNormalProperties.size()) {
+                    tradingPlayerTradingWithProperties[i].normalProperty 
+                        = playerManager.playerTradingWithNormalProperties.get(normalPropertiesIndex);
+                    tradingPlayerTradingWithProperties[i].propertyType 
+                        = "Normal Property";
+                    g2d.setColor(HelperFunctions.getColor(playerManager.playerTradingWithNormalProperties.get(normalPropertiesIndex)));
+                    g2d.fillRect(tradingMenuPropertyBoxesX[i] + 405, 
+                                 tradingMenuPropertyBoxesY[i] + 5, 
+                                 40, 10);
+                    normalPropertiesIndex++;
+                } else if (i < playerManager.playerTradingWithNormalProperties.size() 
+                            + playerManager.playerTradingWithRailroads.size()) {
+                    tradingPlayerTradingWithProperties[i].railroadProperty 
+                        = playerManager.playerTradingWithRailroads.get(railroadsIndex);
+                    tradingPlayerTradingWithProperties[i].propertyType 
+                        = "Railroad";
+                    g2d.drawImage(playerManager.playerTradingWithRailroads.get(railroadsIndex).image, 
+                                  tradingMenuPropertyBoxesX[i] + 405, 
+                                  tradingMenuPropertyBoxesY[i] + 5, 
+                                  null);
+                    railroadsIndex++;
+                } else if (i < playerManager.playerTradingWithNormalProperties.size() 
+                            + playerManager.playerTradingWithRailroads.size() 
+                            + playerManager.playerTradingWithUtilities.size()) {
+                    tradingPlayerTradingWithProperties[i].utilityProperty
+                        = playerManager.playerTradingWithUtilities.get(utilitiesIndex);
+                    tradingPlayerTradingWithProperties[i].propertyType 
+                        = "Utility";
+                    utilitiesIndex++;
+                }
+
+                if (tradingPlayerTradingWithProperties[i].selected == true) {
+                    g2d.drawImage(playerManager.tradingLeftArrowImage, 
+                                 tradingMenuPropertyBoxesX[i] + 410, 
+                                 tradingMenuPropertyBoxesY[i] + 10, 
+                                 null); 
+                }
+                tradingPlayerTradingWithProperties[i].boxLabel.setVisible(false);
+            }
+
+            declineTradeButton.setVisible(true);
+            acceptTradeButton.setVisible(true);
+        } else if (GameStates.currentGameState == GameStates.DECLARE_BANKRUPTCY_STATE) {
+            managerMortgagingButton.setVisible(false);
+            managerTradingButton.setVisible(false);
+            managerBuildingButton.setVisible(false);
+            managerBankruptcyButton.setVisible(false);
+            managerBackButton.setVisible(false);
+
+            bankruptcyNoButton.setVisible(true);
+            bankruptcyYesButton.setVisible(true);
+        } else if (GameStates.currentGameState == GameStates.GAME_OVER_STATE) {
+            backtoMainMenuButton.setVisible(true);
         }
     }
 }

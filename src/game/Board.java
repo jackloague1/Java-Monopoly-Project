@@ -30,7 +30,8 @@ public class Board {
 
         g2d.drawImage(goToJailSpace, 635, 90, null);
 
-        if (GameStates.currentGameState != GameStates.SPACE_EVENT_STATE) {
+        if (GameStates.currentGameState != GameStates.SPACE_EVENT_STATE
+            && GameStates.currentGameState != GameStates.GAME_OVER_STATE) {
             g2d.drawImage(csufLogo, 300, 300, 200, 200, null);
         }
     }

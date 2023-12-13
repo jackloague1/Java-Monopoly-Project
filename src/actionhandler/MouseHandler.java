@@ -12,6 +12,7 @@ import src.data.SpaceData;
 import src.game.Dice;
 import src.game.GamePanel;
 import src.game.Player;
+import src.game.PlayerManager;
 import src.game.Profile;
 import src.game.Ui;
 
@@ -21,6 +22,7 @@ import src.game.Ui;
 public class MouseHandler implements MouseListener {
     public GamePanel gamePanel;
     public SpaceData spaceData;
+    public PlayerManager playerManager;
     public Ui ui;
     public Dice dice;
     public ArrayList<Profile> profiles;
@@ -33,11 +35,13 @@ public class MouseHandler implements MouseListener {
     * Constructor.
     */
     public MouseHandler(GamePanel gamePanel, SpaceData spaceData, Ui ui, Dice dice, 
+                        PlayerManager playerManager, 
                         ArrayList<Profile> profiles, ArrayList<Player> players) {
         this.gamePanel = gamePanel;
         this.spaceData = spaceData;
         this.ui = ui;
         this.dice = dice;
+        this.playerManager = playerManager;
         this.profiles = profiles;
         this.players = players;
     }
@@ -115,6 +119,17 @@ public class MouseHandler implements MouseListener {
                 }
             } else if (currentLabel == ui.startGameButton) {
                 if (ui.setUpReady() == true) {
+                    // ui.selectedProfiles[ui.playerAmount - 1] = null;
+                    // ui.selectedProfilesTemp[ui.playerAmount - 1] = null;
+                    // ui.selectedTokens[ui.playerAmount - 1] = null;
+                    // ui.playerAmount = ui.playerAmount - 1;
+                    // ui.playerBoxLabels[ui.playerAmount].setVisible(false);
+                    // ui.removePlayerBoxLabels[ui.playerAmount - 2].setVisible(false);
+                    // ui.selectedPlayerBox = -1;
+
+                    // // if (i == ui.playerAmount - 2) {
+                    // //     ui.hoveredRemovePlayerButton = -1;
+                    // // }
                     gamePanel.createPlayers();
                     ui.nextTurnButton.setForeground(new Color(255, 255, 255, 75));
                     GameStates.currentGameState = GameStates.ROLL_STATE;
@@ -457,18 +472,173 @@ public class MouseHandler implements MouseListener {
                 }
             }
         } else if (GameStates.currentGameState == GameStates.MANAGER_MENU_STATE) {
-            if (currentLabel == ui.managerTradingButton) {
+            if (currentLabel == ui.managerMortgagingButton) {
+                playerManager.getCurrentPlayerProperties();
+                if (playerManager.currentPlayerPropertyAmount > 0) {
+                    ui.mortgagingSelectedProperty = 0;
+                    if (ui.isPropertyMortgaged(ui.mortgagingProperties[ui.mortgagingSelectedProperty]) == false) {
+                        ui.mortgageButton.setForeground(Color.white);
+                        ui.unMortgageButton.setForeground(new Color(255, 255, 255, 75));
+                    } else {
+                        ui.mortgageButton.setForeground(new Color(255, 255, 255, 75));
+                        ui.unMortgageButton.setForeground(Color.white);
+                    }
+                } else {
+                    ui.mortgagingSelectedProperty = -1;
+                }
+
+                ui.managerMortgagingButton.setForeground(Color.white);
+                GameStates.currentGameState = GameStates.MORTGAGING_MENU_STATE;
+            } else if (currentLabel == ui.managerTradingButton) {
+                for (int i = 0; i < players.size(); i++) {
+                    if (players.get(i) != gamePanel.currentPlayer) {
+                        ui.playerTradingList.addItem(players.get(i).name);
+                    }
+                }
                 ui.managerTradingButton.setForeground(Color.white);
                 GameStates.currentGameState = GameStates.TRADING_PLAYER_SELECT_STATE;
+            } else if (currentLabel == ui.managerBuildingButton) {
+                ui.managerBuildingButton.setForeground(Color.white);
+                GameStates.currentGameState = GameStates.BUILDING_MENU_STATE;
+            } else if (currentLabel == ui.managerBankruptcyButton) {
+                ui.managerBankruptcyButton.setForeground(Color.white);
+                GameStates.currentGameState = GameStates.DECLARE_BANKRUPTCY_STATE;
             } else if (currentLabel == ui.managerBackButton) {
                 ui.managerBackButton.setForeground(Color.white);
                 GameStates.currentGameState = GameStates.previousGameState;
             }
+        } else if (GameStates.currentGameState == GameStates.MORTGAGING_MENU_STATE) {
+            if (currentLabel == ui.mortgageButton) {
+                if (ui.isPropertyMortgaged(ui.mortgagingProperties[ui.mortgagingSelectedProperty]) == false) {
+                    ui.mortgageProperty(ui.mortgagingProperties[ui.mortgagingSelectedProperty]);
+                    ui.mortgageButton.setForeground(new Color(255, 255, 255, 75));
+                    ui.unMortgageButton.setForeground(Color.white);
+                }
+            } else if (currentLabel == ui.unMortgageButton) {
+                if (ui.isPropertyMortgaged(ui.mortgagingProperties[ui.mortgagingSelectedProperty]) == true
+                    && ui.canPlayerUnmortgage(ui.mortgagingProperties[ui.mortgagingSelectedProperty]) == true) {
+                    ui.unMortgageProperty(ui.mortgagingProperties[ui.mortgagingSelectedProperty]);
+                    ui.mortgageButton.setForeground(Color.white);
+                    ui.unMortgageButton.setForeground(new Color(255, 255, 255, 75));
+                }
+            } else if (currentLabel == ui.managerBackButton) {
+                ui.clearCurrentPlayerProperties();
+                ui.managerBackButton.setForeground(Color.white);
+                GameStates.currentGameState = GameStates.MANAGER_MENU_STATE;
+            } else {
+                for (int i = 0; i < playerManager.currentPlayerPropertyAmount; i++) {
+                    if (currentLabel == ui.mortgagingProperties[i].boxLabel) {
+                        ui.mortgagingSelectedProperty = i;
+
+                        if (ui.isPropertyMortgaged(ui.mortgagingProperties[ui.mortgagingSelectedProperty]) == false) {
+                            ui.mortgageButton.setForeground(Color.white);
+                            ui.unMortgageButton.setForeground(new Color(255, 255, 255, 75));
+                        } else {
+                            ui.mortgageButton.setForeground(new Color(255, 255, 255, 75));
+                            ui.unMortgageButton.setForeground(Color.white);
+                        }
+                    }
+                }
+            }
         } else if (GameStates.currentGameState == GameStates.TRADING_PLAYER_SELECT_STATE) {
-            if (currentLabel == ui.managerBackButton) {
+            if (currentLabel == ui.startTradingButton) {
+                for (int i = 0; i < players.size(); i++) {
+                    if (players.get(i).name == ui.playerTradingList.getSelectedItem()) {
+                        playerManager.playerTradingWith = players.get(i);
+                        break;
+                    }
+                }
+
+                playerManager.getCurrentPlayerProperties();
+                playerManager.getPlayerTradingWithProperties();
+
+                if (ui.canOfferTrade() == true) {
+                    ui.offerTradeButton.setForeground(Color.white);
+                } else {
+                    ui.offerTradeButton.setForeground(new Color(255, 255, 255, 75));
+                }
+                ui.startTradingButton.setForeground(Color.white);
+                GameStates.currentGameState = GameStates.TRADING_CREATE_STATE;
+            } else if (currentLabel == ui.managerBackButton) {
+                ui.playerTradingList.removeAllItems();
                 ui.managerBackButton.setForeground(Color.white);
                 GameStates.currentGameState = GameStates.MANAGER_MENU_STATE;
             }
+        } else if (GameStates.currentGameState == GameStates.TRADING_CREATE_STATE) {
+            if (currentLabel == ui.managerBackButton) {
+                ui.clearCurrentPlayerProperties();
+                ui.clearPlayerTradingWithProperties();
+                // playerManager.clearSelectedProperties();
+                // ui.createTradingMenuPropertyBoxes();
+                ui.managerBackButton.setForeground(Color.white);
+                GameStates.currentGameState = GameStates.TRADING_PLAYER_SELECT_STATE;
+            } else if (currentLabel == ui.offerTradeButton) {
+                if (ui.canOfferTrade() == true) {
+                    ui.offerTradeButton.setForeground(Color.white);
+                    GameStates.currentGameState = GameStates.TRADING_OFFER_STATE;
+                }
+            } else {
+                for (int i = 0; i < playerManager.currentPlayerPropertyAmount; i++) {
+                    if (currentLabel == ui.tradingCurrentPlayerProperties[i].boxLabel) {
+                        if (ui.tradingCurrentPlayerProperties[i].selected == false) {
+                            ui.tradingCurrentPlayerProperties[i].selected = true;
+                        // playerManager.addPropertyToCurrentPlayerTradingList(i);
+                        // ui.tradingMenuSelectedCurrentPlayerProperties.add(i);
+                        } else {
+                            ui.tradingCurrentPlayerProperties[i].selected = false;
+                        }
+                        if (ui.canOfferTrade() == true) {
+                            ui.offerTradeButton.setForeground(Color.white);
+                        } else {
+                            ui.offerTradeButton.setForeground(new Color(255, 255, 255, 75));
+                        }
+                    }
+                }
+
+                for (int i = 0; i < playerManager.playerTradingWithPropertyAmount; i++) {
+                    if (currentLabel == ui.tradingPlayerTradingWithProperties[i].boxLabel) {
+                        if (ui.tradingPlayerTradingWithProperties[i].selected == false) {
+                            ui.tradingPlayerTradingWithProperties[i].selected = true;
+                        } else {
+                            ui.tradingPlayerTradingWithProperties[i].selected = false;
+                        }
+                        // playerManager.addPropertyToPlayerTradingWithTradingList(i);
+                        // ui.tradingMenuSelectedPlayerTradingWithProperties.add(i);
+                        if (ui.canOfferTrade() == true) {
+                            ui.offerTradeButton.setForeground(Color.white);
+                        } else {
+                            ui.offerTradeButton.setForeground(new Color(255, 255, 255, 75));
+                        }
+                    }
+                }
+            }
+        } else if (GameStates.currentGameState == GameStates.TRADING_OFFER_STATE) {
+            if (currentLabel == ui.declineTradeButton) {
+                ui.declineTradeButton.setForeground(Color.white);
+                GameStates.currentGameState = GameStates.TRADING_CREATE_STATE;
+            } else if (currentLabel == ui.acceptTradeButton) {
+                ui.trade();
+                spaceData.setRentForAllProperties();
+                ui.playerTradingList.removeAllItems();
+                ui.clearCurrentPlayerProperties();
+                ui.clearPlayerTradingWithProperties();
+                ui.acceptTradeButton.setForeground(Color.white);
+                GameStates.currentGameState = GameStates.MANAGER_MENU_STATE;
+            }
+        } else if (GameStates.currentGameState == GameStates.DECLARE_BANKRUPTCY_STATE) {
+            if (currentLabel == ui.bankruptcyNoButton) {
+                ui.bankruptcyNoButton.setForeground(Color.white);
+                GameStates.currentGameState = GameStates.MANAGER_MENU_STATE;
+            } else if (currentLabel == ui.bankruptcyYesButton) {
+                ui.bankruptcyYesButton.setForeground(Color.white);
+                ui.bankruptcyNoButton.setVisible(false);
+                ui.bankruptcyYesButton.setVisible(false);
+                gamePanel.removePlayer();
+            }
+        } else if (GameStates.currentGameState == GameStates.GAME_OVER_STATE) {
+            gamePanel.players.clear();
+            ui.backtoMainMenuButton.setForeground(Color.white);
+            GameStates.currentGameState = GameStates.TITLE_SCREEN_STATE;   
         }
     }
 
@@ -599,8 +769,64 @@ public class MouseHandler implements MouseListener {
                 } else if (currentLabel == ui.managerBackButton) {
                     currentLabel.setForeground(new Color(153, 235, 255));
                 }
+            } else if (GameStates.currentGameState == GameStates.MORTGAGING_MENU_STATE) {
+                if (currentLabel == ui.mortgageButton) {
+                    if (ui.isPropertyMortgaged(ui.mortgagingProperties[ui.mortgagingSelectedProperty]) == false) {
+                        ui.mortgageButton.setForeground(new Color(153, 235, 255));
+                    }
+                } else if (currentLabel == ui.unMortgageButton) {
+                    if (ui.isPropertyMortgaged(ui.mortgagingProperties[ui.mortgagingSelectedProperty]) == true) {
+                        ui.unMortgageButton.setForeground(new Color(153, 235, 255));
+                    }
+                } else if (currentLabel == ui.managerBackButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                } else {
+                    for (int i = 0; i < playerManager.currentPlayerPropertyAmount; i++) {
+                        if (currentLabel == ui.mortgagingProperties[i].boxLabel) {
+                            ui.mortgagingHoveredProperty = i;
+                        }
+                    }
+                }
             } else if (GameStates.currentGameState == GameStates.TRADING_PLAYER_SELECT_STATE) {
+                if (currentLabel == ui.startTradingButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                } else if (currentLabel == ui.managerBackButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                }
+            } else if (GameStates.currentGameState == GameStates.TRADING_CREATE_STATE) {
                 if (currentLabel == ui.managerBackButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                } else if (currentLabel == ui.offerTradeButton) {
+                    if (ui.canOfferTrade() == true) {
+                        ui.offerTradeButton.setForeground(new Color(153, 235, 255));
+                    }
+                } else {
+                    for (int i = 0; i < playerManager.currentPlayerPropertyAmount; i++) {
+                        if (currentLabel == ui.tradingCurrentPlayerProperties[i].boxLabel) {
+                            ui.tradingMenuHoveredCurrentPlayerProperty = i;
+                        }
+                    }
+
+                    for (int i = 0; i < playerManager.playerTradingWithPropertyAmount; i++) {
+                        if (currentLabel == ui.tradingPlayerTradingWithProperties[i].boxLabel) {
+                            ui.tradingMenuHoveredPlayerTradingWithProperty = i;
+                        }
+                    }
+                }
+            } else if (GameStates.currentGameState == GameStates.TRADING_OFFER_STATE) {
+                if (currentLabel == ui.declineTradeButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                } else if (currentLabel == ui.acceptTradeButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                }
+            } else if (GameStates.currentGameState == GameStates.DECLARE_BANKRUPTCY_STATE) {
+                if (currentLabel == ui.bankruptcyNoButton) {
+                     currentLabel.setForeground(new Color(153, 235, 255));
+                } else if (currentLabel == ui.bankruptcyYesButton) {
+                    currentLabel.setForeground(new Color(153, 235, 255));
+                }
+            } else if (GameStates.currentGameState == GameStates.GAME_OVER_STATE) {
+                if (currentLabel == ui.backtoMainMenuButton) {
                     currentLabel.setForeground(new Color(153, 235, 255));
                 }
             }
@@ -728,8 +954,64 @@ public class MouseHandler implements MouseListener {
                 } else if (currentLabel == ui.managerBackButton) {
                     currentLabel.setForeground(Color.white);
                 }
+            } else if (GameStates.currentGameState == GameStates.MORTGAGING_MENU_STATE) {
+                if (currentLabel == ui.mortgageButton) {
+                    if (ui.isPropertyMortgaged(ui.mortgagingProperties[ui.mortgagingSelectedProperty]) == false) {
+                        ui.mortgageButton.setForeground(Color.white);
+                    }
+                } else if (currentLabel == ui.unMortgageButton) {
+                    if (ui.isPropertyMortgaged(ui.mortgagingProperties[ui.mortgagingSelectedProperty]) == true) {
+                        ui.unMortgageButton.setForeground(Color.white);
+                    }
+                } else if (currentLabel == ui.managerBackButton) {
+                    currentLabel.setForeground(Color.white);
+                } else {
+                    for (int i = 0; i < playerManager.currentPlayerPropertyAmount; i++) {
+                        if (currentLabel == ui.mortgagingProperties[i].boxLabel) {
+                            ui.mortgagingHoveredProperty = -1;
+                        }
+                    }
+                }
             } else if (GameStates.currentGameState == GameStates.TRADING_PLAYER_SELECT_STATE) {
+                if (currentLabel == ui.startTradingButton) {
+                    currentLabel.setForeground(Color.white);
+                } else if (currentLabel == ui.managerBackButton) {
+                    currentLabel.setForeground(Color.white);
+                }
+            } else if (GameStates.currentGameState == GameStates.TRADING_CREATE_STATE) {
                 if (currentLabel == ui.managerBackButton) {
+                    currentLabel.setForeground(Color.white);
+                } else if (currentLabel == ui.offerTradeButton) {
+                    if (ui.canOfferTrade() == true) {
+                        ui.offerTradeButton.setForeground(Color.white);
+                    }
+                } else {
+                    for (int i = 0; i < playerManager.currentPlayerPropertyAmount; i++) {
+                        if (currentLabel == ui.tradingCurrentPlayerProperties[i].boxLabel) {
+                            ui.tradingMenuHoveredCurrentPlayerProperty = -1;
+                        }
+                    }
+
+                    for (int i = 0; i < playerManager.playerTradingWithPropertyAmount; i++) {
+                        if (currentLabel == ui.tradingPlayerTradingWithProperties[i].boxLabel) {
+                            ui.tradingMenuHoveredPlayerTradingWithProperty = -1;
+                        }
+                    }
+                }
+            } else if (GameStates.currentGameState == GameStates.TRADING_OFFER_STATE) {
+                if (currentLabel == ui.declineTradeButton) {
+                    currentLabel.setForeground(Color.white);
+                } else if (currentLabel == ui.acceptTradeButton) {
+                    currentLabel.setForeground(Color.white);
+                }
+            } else if (GameStates.currentGameState == GameStates.DECLARE_BANKRUPTCY_STATE) {
+                if (currentLabel == ui.bankruptcyNoButton) {
+                     currentLabel.setForeground(Color.white);
+                } else if (currentLabel == ui.bankruptcyYesButton) {
+                    currentLabel.setForeground(Color.white);
+                }
+            } else if (GameStates.currentGameState == GameStates.GAME_OVER_STATE) {
+                if (currentLabel == ui.backtoMainMenuButton) {
                     currentLabel.setForeground(Color.white);
                 }
             }

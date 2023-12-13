@@ -72,8 +72,8 @@ public class Dice {
     public void getDiceResult() {
         leftDie = (int) ((Math.random() * (maxNumber)) + minNumber);
         rightDie = (int) ((Math.random() * (maxNumber)) + minNumber);
-        // leftDie = 4;
-        // rightDie = 3;
+        // leftDie = 6;
+        // rightDie = 4;
         System.out.println(leftDie);
         System.out.println(rightDie);
 

@@ -8,11 +8,14 @@ import src.game.Player;
 public class NormalProperty extends Space {
     public String group;
     public int price;
+    public int mortgageValue;
+    public int unMortgageFee;
     public int normalRent;
     public int buildingPrice;
     public int[] buildingRent;
     public int currentRent;
     public int buildingAmount;
+    public boolean isMortgaged;
 
     public Player owner;
 
@@ -33,8 +36,13 @@ public class NormalProperty extends Space {
         this.buildingPrice = buildingPrice;
         this.buildingRent = buildingRent;
 
+        mortgageValue = price / 2;
+        unMortgageFee = Math.round(mortgageValue + (mortgageValue * 0.1f));
+
         currentRent = normalRent;
         buildingAmount = 0;
+
+        isMortgaged = false;
     }
 
     /**

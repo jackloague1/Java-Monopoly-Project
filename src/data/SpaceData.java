@@ -1,6 +1,12 @@
 package src.data;
 
+import java.awt.Image;
 import java.util.ArrayList;
+
+
+import javax.swing.ImageIcon;
+
+
 import src.spaces.Card;
 import src.spaces.FreeParking;
 import src.spaces.Go;
@@ -18,6 +24,7 @@ import src.spaces.UtilityProperty;
 public class SpaceData 
 {
     public final int NUM_OF_SPACES = 40;
+    public final int NUM_OF_PROPERTIES = 28;
     public final int NUM_OF_NORMAL_PROPERTIES = 22;
     public final int NUM_OF_RAILROAD_PROPERTIES = 4;
     public final int NUM_OF_UTILITY_PROPERTIES = 2;
@@ -186,6 +193,10 @@ public class SpaceData
     * Creates the data for all railroad property spaces.
     */
     public void createRailroadProperties() {
+        final Image[] images = {new ImageIcon("images/Anderson-Field-Image.png").getImage(),
+                                new ImageIcon("images/Goodwin-Field-Image.png").getImage(),
+                                new ImageIcon("images/Titan-Gymnasium-Image.png").getImage(),
+                                new ImageIcon("images/Titan-Stadium-Image.png").getImage()};
         final int[] xCoordinates = { 386, 0, 0, 0 };
         final int[] yCoordinates = { 661, 0, 0, 0 };
         final int[] spaceNumbers = { 5, 15, 25, 35 };
@@ -200,7 +211,8 @@ public class SpaceData
                                     {25, 50, 100, 200} };
 
         for (int i = 0; i < NUM_OF_RAILROAD_PROPERTIES; i++) {
-            railroadProperties.add(new RailroadProperty(xCoordinates[i], 
+            railroadProperties.add(new RailroadProperty(images[i],
+                                                        xCoordinates[i], 
                                                         yCoordinates[i], 
                                                         spaceNumbers[i], 
                                                         names[i], 
@@ -216,7 +228,7 @@ public class SpaceData
         final int[] xCoordinates = { 0, 0 };
         final int[] yCoordinates = { 0, 0 };
         final int[] spaceNumbers = { 12, 28 };
-        final String[] names = { "CSUF Electric", "CSUF Water" };
+        final String[] names = { "Arboretum", "Greenhouse Complex" };
         final int[] prices = { 150, 150 };
         final int[][] rentMultiplier = { {4, 10},
                                          {4, 10} };
@@ -269,13 +281,13 @@ public class SpaceData
     /**
     * Checks if a single player owns all properties of a certain group.
     */
-    public boolean isMonopoly() {
+    public boolean isMonopoly(NormalProperty property) {
         ArrayList<NormalProperty> groupNormalProperties = new ArrayList<NormalProperty>();
 
         int groupNormalPropertiesIndex = 0;
 
         for (int i = 0; i < normalProperties.size(); i++) {
-            if (normalProperties.get(i).group == currentNormalProperty.group) {
+            if (normalProperties.get(i).group == property.group) {
                 if (groupNormalProperties.size() == 0) {
                     groupNormalProperties.add(normalProperties.get(i));
                     groupNormalPropertiesIndex++;
@@ -295,23 +307,31 @@ public class SpaceData
     }
 
     /**
-    * Determines how many railroads or utilities a single player owns.
+    * Determines how many railroads a single player owns.
     */
-    public int howManyInGroup() {
+    public int railroadsHowManyInGroup(RailroadProperty railroad) {
         
         int number = 0;
 
-        if (currentSpaceType == "Railroad") {
-            for (int i = 0; i < railroadProperties.size(); i++) {
-                if (railroadProperties.get(i).owner == currentRailroad.owner) {
-                        number++;
-                    }
-                }
-        } else if (currentSpaceType == "Utility") {
-            for (int i = 0; i < utilityProperties.size(); i++) {
-                if (utilityProperties.get(i).owner == currentUtility.owner) {
-                    number++;
-                }
+        for (int i = 0; i < railroadProperties.size(); i++) {
+            if (railroadProperties.get(i).owner == railroad.owner) {
+                number++;
+            }
+        }
+
+        return number;
+    }
+
+    
+    /**
+    * Determines how many utilities a single player owns.
+    */
+    public int utilitiesHowManyInGroup(UtilityProperty utility) {
+        int number = 0;
+
+        for (int i = 0; i < utilityProperties.size(); i++) {
+            if (utilityProperties.get(i).owner == utility.owner) {
+                number++;
             }
         }
 
@@ -319,29 +339,58 @@ public class SpaceData
     }
 
     /**
+    * Sets the current rent of all currently owned properties.
+    */
+    public void setRentForAllProperties() {
+        for (int i = 0; i < NUM_OF_NORMAL_PROPERTIES; i++) {
+            if (normalProperties.get(i).owner != null) {
+                if (normalProperties.get(i).buildingAmount > 0) {
+                    normalProperties.get(i).currentRent 
+                        = normalProperties.get(i).buildingRent[normalProperties.get(i).buildingAmount - 1];
+                } else if (isMonopoly(normalProperties.get(i)) == true) {
+                    normalProperties.get(i).currentRent = normalProperties.get(i).normalRent * 2;
+                } else {
+                    normalProperties.get(i).currentRent = normalProperties.get(i).normalRent;
+                }
+            }
+        }
+
+        for (int i = 0; i < NUM_OF_RAILROAD_PROPERTIES; i++) {
+            if (railroadProperties.get(i).owner != null) {
+                railroadProperties.get(i).currentRent 
+                    = railroadProperties.get(i).groupRent[railroadsHowManyInGroup(railroadProperties.get(i)) - 1];
+            }
+        }
+
+        for (int i = 0; i < NUM_OF_UTILITY_PROPERTIES; i++) {
+            if (utilityProperties.get(i).owner != null) {
+                utilityProperties.get(i).currentMultiplier 
+                    = utilityProperties.get(i).rentMultiplier[utilitiesHowManyInGroup(utilityProperties.get(i)) - 1];
+            }
+        }
+    }
+
+    /**
     * Sets the current rent of the current property.
     */
-    public int setRent() {
-        int rent = 0;
+    public void setRent() {
 
         if (currentSpaceType == "Normal Property") {
             if (currentNormalProperty.buildingAmount > 0) {
                 currentNormalProperty.currentRent 
                     = currentNormalProperty.buildingRent[currentNormalProperty.buildingAmount - 1];
-            } else if (isMonopoly() == true) {
+            } else if (isMonopoly(currentNormalProperty) == true) {
                 currentNormalProperty.currentRent = currentNormalProperty.normalRent * 2;
             } else {
                 currentNormalProperty.currentRent = currentNormalProperty.normalRent;
             }
         } else if (currentSpaceType == "Railroad") {
-            currentRailroad.currentRent = currentRailroad.groupRent[howManyInGroup() - 1];
+            currentRailroad.currentRent = currentRailroad.groupRent[railroadsHowManyInGroup(currentRailroad) - 1];
         } else if (currentSpaceType == "Utility") {
             currentUtility.currentMultiplier 
-                = currentUtility.rentMultiplier[howManyInGroup() - 1];
+                = currentUtility.rentMultiplier[utilitiesHowManyInGroup(currentUtility) - 1];
             System.out.print("Current utility multipler: " + currentUtility.currentMultiplier);
         }
-
-        return rent;
     }
 
     /**

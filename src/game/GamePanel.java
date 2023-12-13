@@ -41,6 +41,7 @@ public class GamePanel extends JPanel implements Runnable {
     public Ui ui;
     public PlayerManager playerManager;
     public SpaceEvent spaceEvent;
+    public Backgrounds backgrounds;
 
     private Thread gameThread;
 
@@ -89,10 +90,11 @@ public class GamePanel extends JPanel implements Runnable {
         players = new ArrayList<Player>();
         dice = new Dice(this, players);
         playerInfoBox = new PlayerInfoBox(this, fonts);
-        ui = new Ui(this, fonts, spaceData, saveLoad, dice, profiles, players);
         playerManager = new PlayerManager(this, fonts, spaceData, saveLoad, dice, profiles, 
                                           players);
+        ui = new Ui(this, fonts, spaceData, saveLoad, dice, playerManager, profiles, players);
         spaceEvent = new SpaceEvent(this, fonts, ui, dice, players, spaceData);
+        backgrounds = new Backgrounds();
 
         // Calculates amount of nanoseconds in a second divided by FPS.
         drawInterval = 1000000000 / fps;
@@ -286,6 +288,83 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     /**
+    * Sets up turn for next player after a player delcares bankruptcy.
+    */
+    public void setUpNextTurn() {
+        if (dice.doubles == false || currentPlayer.isInJail == true) {
+            currentPlayer.doublesStreak = 0;
+            changePlayerNumber();
+        }
+
+        dice.result = 0;
+        dice.doubles = false;
+
+        if (players.get(currentPlayerNumber - 1).isInJail == true) {
+            players.get(currentPlayerNumber - 1).turnsInJail++;
+            ui.rollButton.setForeground(new Color(255, 255, 255, 75));
+            ui.managerButton.setForeground(Color.white);
+            ui.nextTurnButton.setForeground(new Color(255, 255, 255, 75));
+            if (currentPlayer.money >= Settings.JAIL_BAIL) {
+                ui.jailPayBailButton.setForeground(Color.white);
+            } else {
+                ui.jailPayBailButton.setForeground(new Color(255, 255, 255, 75));
+            }
+            GameStates.currentGameState = GameStates.SPACE_EVENT_STATE;
+        } else {
+            ui.rollButton.setForeground(Color.white);
+            ui.nextTurnButton.setForeground(new Color(255, 255, 255, 75));
+            GameStates.currentGameState = GameStates.ROLL_STATE;
+        }
+    }
+    
+    /**
+    * Returns all property of a removed player to the bank.
+    */
+    public void returnPropertyToBank() {
+        for (int i = 0; i < spaceData.NUM_OF_NORMAL_PROPERTIES; i++) {
+            if (spaceData.normalProperties.get(i).owner == currentPlayer) {
+                spaceData.normalProperties.get(i).owner = null;
+            }
+        }
+
+        for (int i = 0; i < spaceData.NUM_OF_RAILROAD_PROPERTIES; i++) {
+            if (spaceData.railroadProperties.get(i).owner == currentPlayer) {
+                spaceData.railroadProperties.get(i).owner = null;
+            }
+        }
+
+        for (int i = 0; i < spaceData.NUM_OF_UTILITY_PROPERTIES; i++) {
+            if (spaceData.utilityProperties.get(i).owner == currentPlayer) {
+                spaceData.utilityProperties.get(i).owner = null;
+            }
+        }
+    }
+
+    /**
+    * Removes a player from the game after they declare bankruptcy.
+    */
+    public void removePlayer() {
+        returnPropertyToBank();
+        setUpNextTurn();
+
+        if (currentPlayerNumber == 1) {
+            System.out.print("remove test");
+            players.remove(playerAmount  - 1);
+        } else {
+            System.out.print("Player number removed: ");
+            System.out.print(currentPlayerNumber - 2);
+            players.remove(currentPlayerNumber - 2);
+        }
+        // playerInfoBox.setCurrentPlayer();
+        playerAmount -= 1;
+
+        if (playerAmount <= 1) {
+            returnPropertyToBank();
+            GameStates.currentGameState = GameStates.GAME_OVER_STATE;
+        }
+    }
+
+    /**
     * Draws the players on screen, with the order of which player is drawn based on whose turn it
     * currently is.
     */
@@ -347,16 +426,22 @@ public class GamePanel extends JPanel implements Runnable {
 
         if (GameStates.currentGameState == GameStates.TITLE_SCREEN_STATE) {
             // mainMenu.draw(g2d);
+            backgrounds.draw(g2d);
             ui.draw(g2d);
         } else if (GameStates.currentGameState == GameStates.SET_UP_STATE) {
+            backgrounds.draw(g2d);
             ui.draw(g2d);
         } else if (GameStates.currentGameState == GameStates.CREATE_PROFILE_STATE) {
+            backgrounds.draw(g2d);
             ui.draw(g2d);
         } else if (GameStates.currentGameState == GameStates.PROFILE_ERROR_STATE) {
+            backgrounds.draw(g2d);
             ui.draw(g2d);
         } else if (GameStates.currentGameState == GameStates.PROFILE_SCREEN_STATE) {
+            backgrounds.draw(g2d);
             ui.draw(g2d);
         } else if (GameStates.currentGameState == GameStates.ROLL_STATE) {
+            backgrounds.draw(g2d);
             board.draw(g2d);
             ui.draw(g2d);
 
@@ -364,6 +449,7 @@ public class GamePanel extends JPanel implements Runnable {
 
             playerInfoBox.draw(g2d);
         } else if (GameStates.currentGameState == GameStates.DICE_DELAY_STATE) {
+            backgrounds.draw(g2d);
             board.draw(g2d);
             ui.draw(g2d);
 
@@ -371,24 +457,20 @@ public class GamePanel extends JPanel implements Runnable {
             playerInfoBox.draw(g2d);
             dice.draw(g2d);
         } else if (GameStates.currentGameState == GameStates.PLAYER_MOVE_STATE) {
+            backgrounds.draw(g2d);
             board.draw(g2d);
             ui.draw(g2d);
 
             drawPlayers(g2d);
-            // for (int i = 0; i < players.size(); i++) {
-            //     players.get(i).draw(g2d);
-            // }
 
             playerInfoBox.draw(g2d);
             dice.draw(g2d);
         } else if (GameStates.currentGameState == GameStates.SPACE_EVENT_STATE) {
+            backgrounds.draw(g2d);
             board.draw(g2d);
             ui.draw(g2d);
 
             drawPlayers(g2d);
-            // for (int i = 0; i < players.size(); i++) {
-            //     players.get(i).draw(g2d);
-            // }
 
             playerInfoBox.draw(g2d);
 
@@ -398,21 +480,50 @@ public class GamePanel extends JPanel implements Runnable {
 
             spaceEvent.draw(g2d);
         } else if (GameStates.currentGameState == GameStates.NEXT_TURN_STATE) {
+            backgrounds.draw(g2d);
             board.draw(g2d);
             ui.draw(g2d);
 
             drawPlayers(g2d);
-            // for (int i = 0; i < players.size(); i++) {
-            //     players.get(i).draw(g2d);
-            // }
 
             playerInfoBox.draw(g2d);
         } else if (GameStates.currentGameState == GameStates.MANAGER_MENU_STATE) {
+            backgrounds.draw(g2d);
+            playerManager.draw(g2d);
+            ui.draw(g2d);
+        } else if (GameStates.currentGameState == GameStates.MORTGAGING_MENU_STATE) {
+            backgrounds.draw(g2d);
             playerManager.draw(g2d);
             ui.draw(g2d);
         } else if (GameStates.currentGameState == GameStates.TRADING_PLAYER_SELECT_STATE) {
+            backgrounds.draw(g2d);
             playerManager.draw(g2d);
             ui.draw(g2d);
+        } else if (GameStates.currentGameState == GameStates.TRADING_CREATE_STATE) {
+            backgrounds.draw(g2d);
+            playerManager.draw(g2d);
+            ui.draw(g2d);
+        } else if (GameStates.currentGameState == GameStates.TRADING_OFFER_STATE) {
+            backgrounds.draw(g2d);
+            playerManager.draw(g2d);
+            ui.draw(g2d);
+        } else if (GameStates.currentGameState == GameStates.BUILDING_MENU_STATE) {
+            playerManager.draw(g2d);
+            ui.draw(g2d);
+        } else if (GameStates.currentGameState == GameStates.DECLARE_BANKRUPTCY_STATE) {
+            backgrounds.draw(g2d);
+            playerManager.draw(g2d);
+            ui.draw(g2d);
+        } else if (GameStates.currentGameState == GameStates.GAME_OVER_STATE) {
+            backgrounds.draw(g2d);
+            board.draw(g2d);
+            ui.draw(g2d);
+
+            drawPlayers(g2d);
+
+            playerInfoBox.draw(g2d);
+
+            HelperFunctions.drawText(g2d, players.get(0).name + " has won!", fonts.pixeloidSans, Color.black, 22, 200, 375, 400, 50, true, true);
         }
     }
 }
