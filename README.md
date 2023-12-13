@@ -22,6 +22,6 @@ Within the Player Manager (located in the top-center of the main board game scre
 * There is currently no functionality for building houses or hotels.
 
 # Bugs
-Some of the buttons are not responsive or always responsive.
-Currently, there is a bug that causes the game to sometimes freeze when a player declares bankruptcy and leaves the game.
-When the game is played with four players or more, many of the buttons lose functionality. It is unknown currently what is causing this.
+* Some of the buttons are not responsive or always responsive.
+* Currently, there is a bug that causes the game to sometimes freeze when a player declares bankruptcy and leaves the game.
+* When the game is played with four players or more, many of the buttons lose functionality. It is unknown currently what is causing this.
