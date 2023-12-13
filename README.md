@@ -17,9 +17,9 @@ Once a game is started, players can roll the dice and move around the board. Pla
 Within the Player Manager (located in the top-center of the main board game screen), players can manage their assets by mortgaging/unmortgaging properties, or trading properties with other players. Players may also declare bankruptcy if they cannot pay a debt or simply wish to leave the game.
 
 # Missing Features
-There is currently no functionality for the Chance and Community Chest cards.
-Players can only trade properties, rather than also being able to trade money and Get Out of Jail Free cards.
-There is currently no functionality for building houses or hotels.
+* There is currently no functionality for the Chance and Community Chest cards.
+* Players can only trade properties, rather than also being able to trade money and Get Out of Jail Free cards.
+* There is currently no functionality for building houses or hotels.
 
 # Bugs
 Some of the buttons are not responsive or always responsive.
