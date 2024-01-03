@@ -9,6 +9,12 @@ To run the game:
 2) Download this repository
 3) Open (double-click) the Game.jar file to run the game. Alternatively, run the game from the command prompt by navigating to the repository directory and running the command "java -jar Game.jar".
 
+# Project Documentation
+The project report, which documents features, project schedule metrics, software patterns used, test cases, etc. for this project can be viewed in the "Project Report" PDF file.
+
+# Scrum Artifacts
+The product definition, which contains the various planned features of the project, and the product backlog, which contains the user stories defined for each feature, can be viewed in the "Product Definition and Backlog" PDF file. The sprint backlogs, which contain the various tasks completed every two-weeks of the semester can be viewed by navigating to the "Projects" tab of this repository.
+
 # How to Play
 From the main menu, the user can either choose Play (which navigates to the Game Set-Up menu), or Profiles (which navigates to the Profiles menu). Within the Profiles menu, player profiles can be created and saved. Within the Game Set-Up menu, every player must have a valid profile name and token selected before a game can begin. The set-up menu allows for up to six players to join a game, however there is currently a bug where many buttons in the game lose their functionality if the game is played with four players or more.
 
