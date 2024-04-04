@@ -7,7 +7,7 @@ A recreation of the board game Monopoly using the Java language, with a CSU Full
 To run the game:
 1) Make sure Java is installed on your computer (Download: https://www.java.com/en/download/)
 2) Download this repository, or navigate to the "Releases" section of this page and download the file Game.jar.
-3) Open (double-click) the Game.jar file to run the game. Alternatively, run the game from the command prompt by navigating to the repository directory and running the command "java -jar Game.jar".
+3) Open (double-click) the Game.jar file to run the game. Alternatively, run the game from the command prompt by navigating to the directory of Game.jar and running the command "java -jar Game.jar".
 
 # Project Documentation
 The project report, which documents features, project schedule metrics, software patterns used, test cases, etc. for this project can be viewed in the "Project Report" PDF file.
